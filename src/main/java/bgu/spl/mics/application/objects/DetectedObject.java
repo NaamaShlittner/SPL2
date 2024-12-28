@@ -6,5 +6,21 @@ package bgu.spl.mics.application.objects;
  */
 public class DetectedObject {
 
-    // TODO: Define fields and methods.
+    private static int idCounter = 0;
+    private final int id;
+    private final String description;
+
+    public DetectedObject( String description) {
+        this.id = idCounter;
+        idCounter++;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getId() {
+        return id;
+    }
 }
