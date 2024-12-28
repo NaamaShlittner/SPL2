@@ -8,6 +8,8 @@ import bgu.spl.mics.MicroService;
  */
 public class TimeService extends MicroService {
 
+    private int TickTime;
+    private int Duration;
     /**
      * Constructor for TimeService.
      *
@@ -15,8 +17,9 @@ public class TimeService extends MicroService {
      * @param Duration  The total number of ticks before the service terminates.
      */
     public TimeService(int TickTime, int Duration) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("TimeService");
+        this.TickTime = TickTime;
+        this.Duration = Duration;
     }
 
     /**

@@ -14,7 +14,7 @@ public class Future<T> {
 	private T result;
 	private boolean isResolved = false;
 	/**
-	 * This should be the the only public constructor in this class.
+	 * This should be the only public constructor in this class.
 	 */
 	public Future() {
 		result = null;
@@ -86,7 +86,7 @@ public class Future<T> {
 			}
 			waitTime = endTime - System.currentTimeMillis(); // calculate remaining time
 		}
-		
+
 		return isDone() ? result : null;
 	}
 

@@ -1,4 +1,7 @@
 package bgu.spl.mics;
+
+import jdk.javadoc.internal.doclets.toolkit.util.Utils;
+
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,19 +12,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	private static MessageBusImpl instance= new MessageBusImpl();
+	private static final MessageBusImpl instance = new MessageBusImpl();
 	private ConcurrentMap<Class<?>, ConcurrentLinkedQueue<MicroService>> eventSubscribers;
 	private ConcurrentMap<Class<?>, ConcurrentLinkedQueue<MicroService>> broadcastSubscribers;
 	private ConcurrentMap<MicroService, ConcurrentLinkedQueue<Message>> messageQueues;
 	private ConcurrentMap<Event<?>, Future<?>> eventFutures;
-	private AtomicInteger roundRobinIndex;
 
 	private MessageBusImpl() {
 		eventSubscribers = new ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<MicroService>>();
 		broadcastSubscribers = new ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<MicroService>>();
 		messageQueues = new ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>>();
 		eventFutures = new ConcurrentHashMap<Event<?>, Future<?>>();
-		roundRobinIndex = new AtomicInteger(0);
 	}
 
 	public static MessageBusImpl getInstance() {
@@ -43,12 +44,13 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		Future<T> future = (Future<T>)eventFutures.get(e); // sus casting O_O
-		future.resolve(result);
+		if(future != null)
+			future.resolve(result);
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		List<MicroService> subscribers = (List<MicroService>)broadcastSubscribers.get(b.getClass()); // sus casting O_o
+		ConcurrentLinkedQueue<MicroService> subscribers = broadcastSubscribers.get(b.getClass());
 		if (subscribers != null) {
 			for (MicroService m : subscribers) {
 				messageQueues.get(m).add(b);
@@ -58,7 +60,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		List<MicroService> subscribers = (List<MicroService>)eventSubscribers.get(e.getClass());
+		ConcurrentLinkedQueue<MicroService> subscribers = eventSubscribers.get(e.getClass());
 		if (subscribers == null || subscribers.isEmpty()) {
 			return null;
 		}
@@ -66,35 +68,46 @@ public class MessageBusImpl implements MessageBus {
 		if (m == null) {
 			return null;
 		}
-		Future<T> future = new Future<>();
+		Future<T> future = new Future<T>();
+		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
 		eventFutures.put(e, future);
-		messageQueues.get(m).add(e);
+		queue.add(e);
+		queue.notifyAll(); // notify all threads waiting on that queue
 		return future;
 	}
 
-	private <T> MicroService getNextMicroService(List<MicroService> subscribers) {
-		int currentIndex = roundRobinIndex.getAndIncrement() % subscribers.size();
-		return subscribers.get(currentIndex);
+	private MicroService getNextMicroService(ConcurrentLinkedQueue<MicroService> subscribers) {
+		MicroService chosenMS =  subscribers.poll();
+		subscribers.add(chosenMS);
+		return chosenMS;
 	}
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
-
+		messageQueues.putIfAbsent(m, new ConcurrentLinkedQueue<Message>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
-
+		messageQueues.remove(m);
+		eventSubscribers.values().forEach(queue -> queue.remove(m));
+		broadcastSubscribers.values().forEach(queue -> queue.remove(m));
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
+		if (queue == null) {
+			throw new IllegalStateException("MicroService not registered");
+		}
+			while (queue.isEmpty()) {
+				try {
+					queue.wait();
+				}
+				catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+			return queue.poll();
 	}
-
-	
-
 }
