@@ -5,6 +5,7 @@ import bgu.spl.mics.application.objects.DetectedObject;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DetectObjectsEvent implements Event<DetectedObject> {
     private final String cameraId;
@@ -22,4 +23,5 @@ public class DetectObjectsEvent implements Event<DetectedObject> {
     public List<DetectedObject> getDetectedObjects() {
         return detectedObjects;
     }
+
 }

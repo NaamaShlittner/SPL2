@@ -1,7 +1,9 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -44,6 +46,12 @@ public class CameraService extends MicroService {
                     sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects));
                 }
             }
+        });
+        subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
+            terminate();
+        });
+        subscribeBroadcast(CrashedBroadcast.class, Crash -> {
+            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
         });
     }
 }

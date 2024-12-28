@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 
 /**
  * TimeService acts as the global timer for the system, broadcasting TickBroadcast messages
@@ -38,9 +39,7 @@ public class TimeService extends MicroService {
             }
         }
 
-//        // לאחר ששלחנו את כל הטיקים, נשלח הודעת TerminateBroadcast
-//        sendBroadcast(new TerminateBroadcast());
-//        // סיום העבודה של השירות
-//        terminate();
+        sendBroadcast(new TerminatedBroadcast());
+        terminate();
     }
 }

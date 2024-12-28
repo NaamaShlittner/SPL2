@@ -1,11 +1,9 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.DetectObjectsEvent;
-import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.TrackedObject;
-import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 
 import java.util.List;
 
@@ -37,10 +35,17 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // כאן נבצע את הרישום לאירועים ולשליחת נתונים
+        // sus method O_o
+        // needs rewriting asap
         subscribeEvent(DetectObjectsEvent.class, detectObjectsEvent -> {
             List<TrackedObject> trackedObjects = liDarWorkerTracker.processData(detectObjectsEvent);
             sendEvent(new TrackedObjectsEvent(trackedObjects));
+        });
+        subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
+            terminate();
+        });
+        subscribeBroadcast(CrashedBroadcast.class, Crash -> {
+            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
         });
 
         subscribeBroadcast(TickBroadcast.class, tick -> {});
