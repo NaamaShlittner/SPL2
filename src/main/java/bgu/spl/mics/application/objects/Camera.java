@@ -13,7 +13,7 @@ public class Camera {
     private STATUS status = STATUS.UP;
     private final List<StampedDetectedObjects> detectedObjectsList;
 
-    public Camera(String id, int frequency, String key) {
+    public Camera(String id, int frequency, String key, String cameraDataPath) {
         this.id = id;
         this.frequency = frequency;
         this.detectedObjectsList = new ArrayList<>();

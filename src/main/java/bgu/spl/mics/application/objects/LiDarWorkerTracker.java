@@ -22,12 +22,9 @@ public class LiDarWorkerTracker {
     private MicroService fusionSLAMService;
     private Lock lock = new ReentrantLock();
 
-    public LiDarWorkerTracker(String id, int frequency) {
+    public LiDarWorkerTracker(String id, int frequency, String dataBasePath) {
         this.id = id;
         this.frequency = frequency;
-        // this.dataBase = dataBase;
-        // this.fusionSLAMService = fusionSLAMService;
-        // this.lastTrackedObjects = null; // Initialize with null or an empty list depending on requirements.
     }
 
     public List<TrackedObject> processData(DetectObjectsEvent detectObjectsEvent) {
