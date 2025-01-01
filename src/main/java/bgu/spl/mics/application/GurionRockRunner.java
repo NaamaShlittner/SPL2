@@ -1,5 +1,7 @@
 package bgu.spl.mics.application;
 
+import bgu.spl.mics.application.gson_files.config;
+
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
  * <p>
@@ -19,7 +21,7 @@ public class GurionRockRunner {
     public static void main(String[] args) {
         System.out.println("Hello World!");
 
-        // TODO: Parse configuration file.
+        config.fromJson("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example input\\configuration_file.json");
         // TODO: Initialize system components and services.
         // TODO: Start the simulation.
     }

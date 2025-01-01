@@ -14,21 +14,20 @@ import java.util.concurrent.locks.ReentrantLock;
  * Each worker tracks objects and sends observations to the FusionSlam service.
  */
 public class LiDarWorkerTracker {
-    private int id;
+    private String id;
     private int frequency;
-    private AtomicReference<STATUS> status;
+    private STATUS status = STATUS.UP;
     private List<TrackedObject> lastTrackedObjects;
     private LiDarDataBase dataBase;
     private MicroService fusionSLAMService;
     private Lock lock = new ReentrantLock();
 
-    public LiDarWorkerTracker(int id, int frequency, STATUS status, LiDarDataBase dataBase, MicroService fusionSLAMService) {
+    public LiDarWorkerTracker(String id, int frequency) {
         this.id = id;
         this.frequency = frequency;
-        this.status = new AtomicReference<>(status);
-        this.dataBase = dataBase;
-        this.fusionSLAMService = fusionSLAMService;
-        this.lastTrackedObjects = null; // Initialize with null or an empty list depending on requirements.
+        // this.dataBase = dataBase;
+        // this.fusionSLAMService = fusionSLAMService;
+        // this.lastTrackedObjects = null; // Initialize with null or an empty list depending on requirements.
     }
 
     public List<TrackedObject> processData(DetectObjectsEvent detectObjectsEvent) {
@@ -43,11 +42,11 @@ public class LiDarWorkerTracker {
     }
 
     // Getters and setters for the new fields
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -60,11 +59,11 @@ public class LiDarWorkerTracker {
     }
 
     public STATUS getStatus() {
-        return status.get();
+        return status;
     }
 
     public void setStatus(STATUS status) {
-        this.status.set(status);
+        this.status = status;
     }
 
     public List<TrackedObject> getLastTrackedObjects() {

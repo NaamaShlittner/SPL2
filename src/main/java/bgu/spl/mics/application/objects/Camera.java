@@ -13,10 +13,10 @@ public class Camera {
     private STATUS status = STATUS.UP;
     private final List<StampedDetectedObjects> detectedObjectsList;
 
-    public Camera(String id, int frequency, List<StampedDetectedObjects> objectsList) {
+    public Camera(String id, int frequency, String key) {
         this.id = id;
         this.frequency = frequency;
-        this.detectedObjectsList = new ArrayList<>(objectsList);
+        this.detectedObjectsList = new ArrayList<>();
     }
 
     public String getId() {
