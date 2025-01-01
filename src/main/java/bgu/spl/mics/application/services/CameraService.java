@@ -43,7 +43,7 @@ public class CameraService extends MicroService {
                 List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick());
 
                 if (!detectedObjects.isEmpty()) {
-                    sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects));
+                    sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
                 }
             }
         });

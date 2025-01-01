@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 public class DetectObjectsEvent implements Event<DetectedObject> {
     private final String cameraId;
     private final List<DetectedObject> detectedObjects;
+    private final int tickTime;
 
-    public DetectObjectsEvent(String cameraId, List<DetectedObject> detectedObjects) {
+    public DetectObjectsEvent(String cameraId, List<DetectedObject> detectedObjects, int tickTime) {
         this.cameraId = cameraId;
         this.detectedObjects = Collections.unmodifiableList(detectedObjects);
+        this.tickTime = tickTime;
     }
 
     public String getCameraId() {
@@ -22,6 +24,10 @@ public class DetectObjectsEvent implements Event<DetectedObject> {
 
     public List<DetectedObject> getDetectedObjects() {
         return detectedObjects;
+    }
+
+    public int getTickTime() {
+        return tickTime;
     }
 
 }
