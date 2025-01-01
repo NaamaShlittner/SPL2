@@ -52,25 +52,26 @@ public class LiDarDataBase {
         return instance;
     }
 
-    public synchronized List<TrackedObject> getTrackedObjects(DetectObjectsEvent event) {
-        List<DetectedObject> detectedObjects = event.getDetectedObjects();
-        List<TrackedObject> trackedObjects = new ArrayList<>();
 
-        for (DetectedObject detectedObject : detectedObjects) {
-            String objectId = detectedObject.getId();
-            int trackingTime = event.getTime(); // נניח שהאירוע מכיל את זמן הזיהוי
-            String description = "Tracked object from camera " + event.getCameraId(); // תיאור מותאם אישית
-            ArrayList<CloudPoint> coordinates = new ArrayList<>();
-
-            // יצירת רשימת CloudPoints מתוך DetectedObject (נניח שהיא מכילה אותם)
-            coordinates.add(new CloudPoint(detectedObject.getX(), detectedObject.getY()));
-
-            // יצירת TrackedObject חדש והוספתו לרשימה
-            TrackedObject trackedObject = new TrackedObject(objectId, trackingTime, description, coordinates);
-            trackedObjects.add(trackedObject);
-        }
-
-        // החזרת הרשימה של האובייקטים שנעקבו
-        return trackedObjects;
-    }
+//    public synchronized List<TrackedObject> getTrackedObjects(DetectObjectsEvent event) {
+//        List<DetectedObject> detectedObjects = event.getDetectedObjects();
+//        List<TrackedObject> trackedObjects = new ArrayList<>();
+//
+//        for (DetectedObject detectedObject : detectedObjects) {
+//            String objectId = detectedObject.getId();
+//            int trackingTime = event.getTickTime(); // נניח שהאירוע מכיל את זמן הזיהוי
+//            String description = "Tracked object from camera " + event.getCameraId(); // תיאור מותאם אישית
+//            ArrayList<CloudPoint> coordinates = new ArrayList<>();
+//
+//            // יצירת רשימת CloudPoints מתוך DetectedObject (נניח שהיא מכילה אותם)
+//            coordinates.add(new CloudPoint(detectedObject.getX(), detectedObject.getY()));
+//
+//            // יצירת TrackedObject חדש והוספתו לרשימה
+//            TrackedObject trackedObject = new TrackedObject(objectId, trackingTime, description, coordinates);
+//            trackedObjects.add(trackedObject);
+//        }
+//
+//        // החזרת הרשימה של האובייקטים שנעקבו
+//        return trackedObjects;
+//    }
 }
