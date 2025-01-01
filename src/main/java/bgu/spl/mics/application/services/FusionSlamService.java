@@ -19,16 +19,19 @@ import java.util.Map;
  * transforming and updating the map with new landmarks.
  */
 public class FusionSlamService extends MicroService {
-    private FusionSlam fusionSlam;
-    private StatisticalFolder statisticalFolder;
+    private final FusionSlam fusionSlam;
+    private final StatisticalFolder statisticalFolder;
+
     /**
      * Constructor for FusionSlamService.
      *
      * @param fusionSlam The FusionSLAM object responsible for managing the global map.
+     * @param statisticalFolder The StatisticalFolder object responsible for aggregating key metrics.
      */
-    public FusionSlamService(FusionSlam fusionSlam) {
+    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
+        this.statisticalFolder = statisticalFolder;
     }
 
     /**
@@ -38,27 +41,75 @@ public class FusionSlamService extends MicroService {
      */
     @Override
     protected void initialize() {
+        // Subscribe to TickBroadcast
         subscribeBroadcast(TickBroadcast.class, tick -> {
             statisticalFolder.setSystemRuntime(tick.getTick());
         });
+
+        // Subscribe to TrackedObjectsEvent
         subscribeEvent(TrackedObjectsEvent.class, event -> {
             fusionSlam.processTrackedObjects(event.getTrackedObjects());
-            event.getTrackedObjects().forEach(trackedObject -> {
-                statisticalFolder.incrementNumLandmarks();
-            });
+            statisticalFolder.incrementNumTrackedObjects();
             complete(event, true);
         });
+
+        // Subscribe to PoseEvent
         subscribeEvent(PoseEvent.class, event -> {
             fusionSlam.updatePose(event.getPose());
             complete(event, true);
         });
 
+        // Subscribe to TerminatedBroadcast
         subscribeBroadcast(TerminatedBroadcast.class, terminated -> {
+            writeOutputFile();
             terminate();
         });
 
+        // Subscribe to CrashedBroadcast
         subscribeBroadcast(CrashedBroadcast.class, crashed -> {
             fusionSlam.handleCrash(crashed.getCrashDetails());
+            writeErrorOutputFile(crashed.getCrashDetails(), crashed.getFaultySensor(), crashed.getLastFrames(), crashed.getPoses());
         });
+    }
+
+    private void writeOutputFile() {
+        Map<String, Object> output = new HashMap<>();
+        output.put("systemRuntime", statisticalFolder.getSystemRuntime());
+        output.put("numDetectedObjects", statisticalFolder.getNumDetectedObjects());
+        output.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
+        output.put("numLandmarks", statisticalFolder.getNumLandmarks());
+        output.put("landMarks", fusionSlam.getLandmarks());
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter writer = new FileWriter("output_file.json")) {
+            gson.toJson(output, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeErrorOutputFile(String error, String faultySensor, Object lastFrames, Object poses) {
+        Map<String, Object> output = new HashMap<>();
+        output.put("Error", error);
+        output.put("faultySensor", faultySensor);
+        output.put("lastFrames", lastFrames);
+        output.put("poses", poses);
+        output.put("statistics", getStatistics());
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter writer = new FileWriter("output_file.json")) {
+            gson.toJson(output, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Map<String, Object> getStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("systemRuntime", statisticalFolder.getSystemRuntime());
+        statistics.put("numDetectedObjects", statisticalFolder.getNumDetectedObjects());
+        statistics.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
+        statistics.put("numLandmarks", statisticalFolder.getNumLandmarks());
+        return statistics;
     }
 }
