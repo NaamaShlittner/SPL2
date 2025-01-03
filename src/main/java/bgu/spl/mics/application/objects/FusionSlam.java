@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Implements the Singleton pattern to ensure a single instance of FusionSlam exists.
  */
 public class FusionSlam {
-    private final List<Landmark> landmarks;
+    private final List<LandMark> landmarks;
     private final List<Pose> poses;
 
     // Singleton instance holder
@@ -26,7 +26,7 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
-    public synchronized void addLandmark(Landmark landmark) {
+    public synchronized void addLandmark(LandMark landmark) {
         landmarks.add(landmark);
     }
 
