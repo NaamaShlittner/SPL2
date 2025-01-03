@@ -3,9 +3,9 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.StatisticalFolder;
-import bgu.spl.mics.application.messages.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import bgu.spl.mics.application.messages.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class FusionSlamService extends MicroService {
         // Subscribe to PoseEvent
         subscribeEvent(PoseEvent.class, event -> {
             fusionSlam.updatePose(event.getPose());
-            complete(event, event.getPose());
+            complete(event, true);
         });
 
         // Subscribe to TerminatedBroadcast
@@ -68,7 +68,8 @@ public class FusionSlamService extends MicroService {
 
         // Subscribe to CrashedBroadcast
         subscribeBroadcast(CrashedBroadcast.class, crashed -> {
-            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
+            fusionSlam.handleCrash(crashed.getCrashDetails());
+            writeErrorOutputFile(crashed.getCrashDetails(), crashed.getFaultySensor(), crashed.getLastFrames(), crashed.getPoses());
         });
     }
 

@@ -26,6 +26,10 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
+    public synchronized List<LandMark> getLandmarks() {
+        return new ArrayList<>(landmarks);
+    }
+
     public synchronized void addLandmark(LandMark landmark) {
         landmarks.add(landmark);
     }
