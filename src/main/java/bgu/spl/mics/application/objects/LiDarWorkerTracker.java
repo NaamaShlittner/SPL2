@@ -70,4 +70,12 @@ public class LiDarWorkerTracker {
     public void setLastTrackedObjects(List<TrackedObject> lastTrackedObjects) {
         this.lastTrackedObjects = lastTrackedObjects;
     }
+
+    public String toString(){
+        return "LiDarWorkerTracker{" +
+                "id='" + id + '\'' +
+                ", frequency=" + frequency +
+                ", status=" + status +
+                '}';
+    }
 }

@@ -1,8 +1,8 @@
 package bgu.spl.mics.application.objects;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import bgu.spl.mics.application.objects.StampedDetectedObjects;
+
+import bgu.spl.mics.application.gson_files.StampedDetectedObjectsDeserializer;
 /**
  * Represents a camera sensor on the robot.
  * Responsible for detecting objects in the environment.
@@ -17,6 +17,8 @@ public class Camera {
         this.id = id;
         this.frequency = frequency;
         this.detectedObjectsList = new ArrayList<>();
+        List<StampedDetectedObjects> stampedDetectedObjects = StampedDetectedObjectsDeserializer.getCameraData(cameraDataPath, key);
+        this.detectedObjectsList.addAll(stampedDetectedObjects);
     }
 
     public String getId() {
@@ -37,5 +39,13 @@ public class Camera {
             }
             return result;
         }
+    }
+    public String toString() {
+        return "Camera{" +
+                "id='" + id + '\'' +
+                ", frequency=" + frequency +
+                ", status=" + status +
+                ", detectedObjectsList=" + detectedObjectsList.toString() +
+                '}';
     }
 }

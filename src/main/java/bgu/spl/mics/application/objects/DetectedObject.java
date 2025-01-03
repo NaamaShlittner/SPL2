@@ -21,4 +21,11 @@ public class DetectedObject {
     public String getId() {
         return id;
     }
+    @Override
+    public String toString() {
+        return "DetectedObject{" +
+                "id='" + id + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

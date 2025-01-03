@@ -21,4 +21,11 @@ public class StampedDetectedObjects {
     public List<DetectedObject> getDetectedObjects() {
         return detectedObjects;
     }
+
+    public String toString() {
+        return "StampedDetectedObjects{" +
+                "time=" + time +
+                ", detectedObjects=" + detectedObjects.toString() +
+                '}';
+    }
 }

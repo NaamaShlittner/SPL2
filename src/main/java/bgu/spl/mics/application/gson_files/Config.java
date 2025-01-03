@@ -4,7 +4,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
@@ -29,21 +30,25 @@ public class Config {
             GsonBuilder gsonBuilder = new GsonBuilder();
             Gson gson = gsonBuilder.create();
             JsonObject root = gson.fromJson(reader, JsonObject.class);
+            Path path = Paths.get(filePath);
             String cameraDataPath = root.getAsJsonObject("Cameras").get("camera_datas_path").getAsString();
-            String lidarDataPath = root.getAsJsonObject("LidarWorkers").get("lidars_data_path").getAsString();
-            gsonBuilder.registerTypeAdapter(Camera.class, new CameraDeserializer(cameraDataPath));
-            gsonBuilder.registerTypeAdapter(LiDarWorkerTracker.class, new LiDarDeserializer(lidarDataPath));
+            String lidarDataPath = root.getAsJsonObject("LiDarWorkers").get("lidars_data_path").getAsString();
+            Path cameraDataPathFull = path.getParent().resolve(cameraDataPath);
+            Path lidarDataPathFull = path.getParent().resolve(lidarDataPath);
+            gsonBuilder.registerTypeAdapter(Camera.class, new CameraDeserializer(cameraDataPathFull.toString()));
+            gsonBuilder.registerTypeAdapter(LiDarWorkerTracker.class, new LiDarDeserializer(lidarDataPathFull.toString()));
             gson = gsonBuilder.create();
             List<Camera> cameras = gson.fromJson(
                     root.getAsJsonObject("Cameras").getAsJsonArray("CamerasConfigurations"),
                     new TypeToken<List<Camera>>() {}.getType());
             List<LiDarWorkerTracker> LiDarWorker = gson.fromJson(
-                    root.getAsJsonObject("LidarWorkers").getAsJsonArray("LidarConfigurations"),
+                    root.getAsJsonObject("LiDarWorkers").getAsJsonArray("LidarConfigurations"),
                     new TypeToken<List<LiDarWorkerTracker>>() {}.getType());
             int tickTime = root.get("TickTime").getAsInt();
             int duration = root.get("Duration").getAsInt();
             String poseFilePath = root.get("poseJsonFile").getAsString();
-            Config config = new Config(cameras, LiDarWorker, tickTime, duration, poseFilePath);
+            Path poseFilePathFull = path.getParent().resolve(poseFilePath);
+            Config config = new Config(cameras, LiDarWorker, tickTime, duration, poseFilePathFull.toString());
             System.err.println(config); // for debugging
             return config;
 
