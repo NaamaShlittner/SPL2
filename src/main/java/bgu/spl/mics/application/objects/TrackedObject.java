@@ -32,7 +32,11 @@ public class TrackedObject {
         return description;
     }
 
-    public ArrayList<CloudPoint> getCoordinates(){
-        return coordinates;
+    public LandMark getLandmark() {
+        return new LandMark(id, description, coordinates);
+    }
+
+    public Pose getPose() {
+        return new Pose(time);
     }
 }
