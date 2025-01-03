@@ -34,4 +34,12 @@ public class Pose {
     public int getTime(){
         return time;
     }
+    public String toString() {
+        return "Pose{" +
+                "x=" + x +
+                ", y=" + y +
+                ", yaw=" + yaw +
+                ", time=" + time +
+                '}';
+    }
 }

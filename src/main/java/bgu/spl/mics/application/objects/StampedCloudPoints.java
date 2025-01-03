@@ -8,7 +8,7 @@ import java.util.List;
 public class StampedCloudPoints {
     private final String id;
     private final int time;
-    private final List<CloudPoint> cloudPoints;  // סנכרון הרשימה
+    private final List<CloudPoint> cloudPoints;
 
     public StampedCloudPoints(String id, int time, List<CloudPoint> cloudPoints) {
         this.id = id;
@@ -27,5 +27,13 @@ public class StampedCloudPoints {
 
     public List<CloudPoint> getCloudPoints() {
         return cloudPoints;
+    }
+
+    public String toString() {
+        return "StampedCloudPoints{" +
+                "id='" + id + '\'' +
+                ", time=" + time +
+                ", cloudPoints=" + cloudPoints.toString() +
+                '}';
     }
 }

@@ -22,7 +22,8 @@ public class GurionRockRunner {
         System.out.println("Hello World!");
         
         Config c = Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example input\\configuration_file.json");
-        Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example_input_2\\configuration_file.json");
+        c.getLiDarWorkers().get(0).printDataBase();
+        // Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example_input_2\\configuration_file.json");
         
         // TODO: Initialize system components and services.
         // TODO: Start the simulation.

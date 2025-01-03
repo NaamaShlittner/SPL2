@@ -1,15 +1,6 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.application.messages.DetectObjectsEvent;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
+import bgu.spl.mics.application.gson_files.StampedCloudPointsDeserializer;
 import java.util.List;
 
 /**
@@ -21,22 +12,7 @@ public class LiDarDataBase {
     private List<StampedCloudPoints> cloudPoints;
 
     private LiDarDataBase(String filePath) {
-        cloudPoints = loadCloudPointsFromFile(filePath);
-    }
-
-    private List<StampedCloudPoints> loadCloudPointsFromFile(String filePath) {
-        if (!Files.exists(Paths.get(filePath))) {
-            throw new RuntimeException("File not found: " + filePath);
-        }
-
-        try {
-            return new Gson().fromJson(
-                    new FileReader(filePath),
-                    new TypeToken<List<StampedCloudPoints>>() {}.getType()
-            );
-        } catch (FileNotFoundException e) {
-            return Collections.emptyList();
-        }
+        this.cloudPoints = StampedCloudPointsDeserializer.getLidarData(filePath);
     }
 
     /**
@@ -52,26 +28,13 @@ public class LiDarDataBase {
         return instance;
     }
 
+    public static LiDarDataBase getInstance() {
+        return instance;
+    }
 
-//    public synchronized List<TrackedObject> getTrackedObjects(DetectObjectsEvent event) {
-//        List<DetectedObject> detectedObjects = event.getDetectedObjects();
-//        List<TrackedObject> trackedObjects = new ArrayList<>();
-//
-//        for (DetectedObject detectedObject : detectedObjects) {
-//            String objectId = detectedObject.getId();
-//            int trackingTime = event.getTickTime(); // נניח שהאירוע מכיל את זמן הזיהוי
-//            String description = "Tracked object from camera " + event.getCameraId(); // תיאור מותאם אישית
-//            ArrayList<CloudPoint> coordinates = new ArrayList<>();
-//
-//            // יצירת רשימת CloudPoints מתוך DetectedObject (נניח שהיא מכילה אותם)
-//            coordinates.add(new CloudPoint(detectedObject.getX(), detectedObject.getY()));
-//
-//            // יצירת TrackedObject חדש והוספתו לרשימה
-//            TrackedObject trackedObject = new TrackedObject(objectId, trackingTime, description, coordinates);
-//            trackedObjects.add(trackedObject);
-//        }
-//
-//        // החזרת הרשימה של האובייקטים שנעקבו
-//        return trackedObjects;
-//    }
+    public String toString() {
+        return "LiDarDataBase{" +
+                "cloudPoints=" + cloudPoints.toString() +
+                '}';
+    }
 }

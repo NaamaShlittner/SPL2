@@ -6,19 +6,26 @@ package bgu.spl.mics.application.objects;
  */
 public class CloudPoint {
 
-    private final int x;
-    private final int y;
+    private final float x;
+    private final float y;
 
-    public CloudPoint(int x, int y) {
+    public CloudPoint(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
+    }
+
+    public String toString() {
+        return "CloudPoint{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 }
