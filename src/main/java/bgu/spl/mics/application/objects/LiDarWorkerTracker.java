@@ -19,7 +19,6 @@ public class LiDarWorkerTracker {
     private STATUS status = STATUS.UP;
     private List<TrackedObject> lastTrackedObjects;
     private LiDarDataBase dataBase;
-    private MicroService fusionSLAMService;
     private Lock lock = new ReentrantLock();
 
     public LiDarWorkerTracker(String id, int frequency) {

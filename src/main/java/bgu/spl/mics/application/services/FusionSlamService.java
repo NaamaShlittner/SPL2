@@ -57,7 +57,7 @@ public class FusionSlamService extends MicroService {
         // Subscribe to PoseEvent
         subscribeEvent(PoseEvent.class, event -> {
             fusionSlam.updatePose(event.getPose());
-            complete(event, true);
+            complete(event, event.getPose());
         });
 
         // Subscribe to TerminatedBroadcast

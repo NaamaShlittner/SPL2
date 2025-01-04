@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.application.gson_files.StampedCloudPointsDeserializer;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +33,26 @@ public class LiDarDataBase {
 
     public static LiDarDataBase getInstance() {
         return instance;
+    }
+
+    /**
+     * Processes the DetectObjectsEvent and returns a list of TrackedObject instances.
+     *
+     * @param detectObjectsEvent The event containing detected objects data.
+     * @return A list of TrackedObject instances.
+     */
+    public List<TrackedObject> getTrackedObjects(DetectObjectsEvent detectObjectsEvent) {
+        List<TrackedObject> trackedObjects = new ArrayList<>();
+        for (DetectedObject detectedObject : detectObjectsEvent.getDetectedObjects()) {
+            TrackedObject trackedObject = new TrackedObject(
+                detectedObject.getId(),
+                detectedObject.getTime(),
+                detectedObject.getDescription(),
+                detectedObject.getCoordinates()
+            );
+            trackedObjects.add(trackedObject);
+        }
+        return trackedObjects;
     }
 
     public String toString() {
