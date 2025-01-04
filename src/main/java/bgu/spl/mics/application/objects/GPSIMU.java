@@ -21,16 +21,14 @@ public class GPSIMU {
         poseList.addAll(poses);
 
     }
-    public Pose getPoseAtTime(int time) {
-        while (poseList.size() - 1 < time) {
-            try{
-                this.wait();
-            } catch (InterruptedException e) {
-                status = STATUS.ERROR;
-                Thread.currentThread().interrupt();
+    public synchronized  Pose getPoseAtTime(int time) {
+        for (Pose pose : poseList) {
+            if (pose.getTime() == time) {
+                System.out.println("getPoseAtTime");
+                return pose;
             }
         }
-        return poseList.get(time);
+        return null;
     }
 
     public void add(Pose pose) {

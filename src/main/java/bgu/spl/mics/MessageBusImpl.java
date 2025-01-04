@@ -64,7 +64,6 @@ public class MessageBusImpl implements MessageBus {
 			}
 		}
 		notifyAll(); // notify all threads that are waiting for a message
-		System.err.println(GREEN + "notify all" + RESET);
 	}
 
 	@Override

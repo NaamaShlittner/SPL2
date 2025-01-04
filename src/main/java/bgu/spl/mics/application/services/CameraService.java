@@ -20,6 +20,8 @@ import java.util.List;
 public class CameraService extends MicroService {
 
     private final Camera camera;
+    final String PURPLE = "\033[35m";
+    final String RESET = "\033[0m";
 
     /**
      * Constructor for CameraService.
@@ -42,6 +44,7 @@ public class CameraService extends MicroService {
             if (camera.shouldSendData(tick.getTick())) {
                 // here we know for a fact that the camera should send data and the list is not empty
                 List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick() - camera.getFrequency());
+                System.out.println(PURPLE + "Camera " + camera.getId() + " detected " + detectedObjects.size() + " objects at tick " + tick.getTick() + RESET);
                 sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
             }
         });

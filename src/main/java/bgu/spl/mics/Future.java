@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Future<T> {
 	private T result;
-	private boolean isResolved = false;
+	private boolean isDone = false;
 	/**
 	 * This should be the only public constructor in this class.
 	 */
@@ -28,35 +28,31 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {
-		synchronized (this) {
-			while (!isDone()) {
-				try {
-					wait();
-				}catch (InterruptedException e){
-					Thread.currentThread().interrupt();
-				}
+	public synchronized T get() {
+		while (!isDone) {
+			try {
+				wait();
+			}catch (InterruptedException e){
+				Thread.currentThread().interrupt();
 			}
-			return result;
 		}
+		return result;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
-	public void resolve (T result) {
-		if (!isResolved) {
-			this.result = result;
-			this.isResolved = true;
-			notifyAll();
-		}
+	public synchronized void resolve (T result) {
+		this.result = result;
+		this.isDone = true;
+		notifyAll();
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
-	public boolean isDone() {
-		return isResolved;
+	public synchronized boolean isDone() {
+		return isDone;
 	}
 	
 	/**
@@ -71,14 +67,14 @@ public class Future<T> {
      *         elapsed, return null.
      */
 	public T get(long timeout, TimeUnit unit) {
-		if (isResolved) {
+		if (isDone) {
 			return result;
 		}
 
 		long waitTime = unit.toMillis(timeout);
 		long endTime = System.currentTimeMillis() + waitTime;
 
-		while (waitTime > 0 && !isResolved) {
+		while (waitTime > 0 && !isDone) {
 			try {
 				this.wait(waitTime);
 			} catch (InterruptedException e) {

@@ -4,7 +4,9 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.TrackedObject;
+import java.util.Iterator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +20,8 @@ import java.util.List;
 public class LiDarService extends MicroService {
     private LiDarWorkerTracker liDarWorkerTracker;
     private List<TrackedObjectsEvent> trackedObjectsEventsWaiting;
+    final String PURPLE = "\033[35m";
+    final String RESET = "\033[0m";
 
     /**
      * Constructor for LiDarService.
@@ -26,6 +30,7 @@ public class LiDarService extends MicroService {
      */
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
         super("LiDarService");
+        trackedObjectsEventsWaiting = new ArrayList<TrackedObjectsEvent>();
         this.liDarWorkerTracker = LiDarWorkerTracker;
     }
 
@@ -48,10 +53,13 @@ public class LiDarService extends MicroService {
             System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
         });
 
-        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            for (TrackedObjectsEvent trackedObjectsEvent : trackedObjectsEventsWaiting) {
+        subscribeBroadcast(TickBroadcast.class, tick -> {
+            Iterator<TrackedObjectsEvent> iterator = trackedObjectsEventsWaiting.iterator();
+            while (iterator.hasNext()) {
+                TrackedObjectsEvent trackedObjectsEvent = iterator.next();
                 if (tick.getTick() >= trackedObjectsEvent.getReceivedTick() + liDarWorkerTracker.getFrequency()) {
-                    trackedObjectsEventsWaiting.remove(trackedObjectsEvent);
+                    iterator.remove();
+                    System.out.println(PURPLE+ "LiDarService: Sending TrackedObjectsEvent to FusionSlamService"+RESET);
                     sendEvent(trackedObjectsEvent);
                 }
             }
