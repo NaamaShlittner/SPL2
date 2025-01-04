@@ -26,7 +26,13 @@ public class Camera {
     }
 
     public boolean shouldSendData(int tick){
-        return tick % frequency == 0;
+        // if there is any object the camera should send data about at the time
+        for (StampedDetectedObjects stampedObjects : detectedObjectsList) {
+            if (stampedObjects.getTime() == tick - frequency) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<DetectedObject> detectObjects(int tick) {
@@ -39,6 +45,10 @@ public class Camera {
             }
             return result;
         }
+    }
+
+    public int getFrequency() {
+        return frequency;
     }
     public String toString() {
         return "Camera{" +

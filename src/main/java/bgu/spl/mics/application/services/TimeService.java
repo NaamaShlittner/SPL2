@@ -12,6 +12,12 @@ public class TimeService extends MicroService {
 
     private int TickTime;
     private int Duration;
+
+    // color coding for debugging
+	final String GREEN = "\033[32m";
+    final String BLUE = "\033[34m";
+    final String RED = "\033[31m";
+    final String RESET = "\033[0m";
     /**
      * Constructor for TimeService.
      *
@@ -32,6 +38,7 @@ public class TimeService extends MicroService {
     protected void initialize() {
         for (int i = 0; i < Duration; i++) {
             try {
+                System.err.println(BLUE + "Sent tick Broadcast: " + (i+1) + RESET);
                 sendBroadcast(new TickBroadcast(i+1));
                 Thread.sleep(TickTime);
             } catch (InterruptedException e) {

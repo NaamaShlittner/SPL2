@@ -6,10 +6,20 @@ public class TickBroadcast implements Broadcast {
     private final int tick;
 
     public TickBroadcast(int tick) {
-        this.tick = tick;
+        synchronized (this) {
+            this.tick = tick;
+        }
     }
 
     public int getTick() {
-        return tick;
+        synchronized (this) {
+            return tick;
+        }
+    }
+
+    public String toString() {
+        return "TickBroadcast{" +
+                "tick=" + tick +
+                '}';
     }
 }

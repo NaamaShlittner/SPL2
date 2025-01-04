@@ -38,13 +38,11 @@ public class CameraService extends MicroService {
      */
     @Override
     protected void initialize() {
-        subscribeBroadcast(TickBroadcast.class, tick -> {
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             if (camera.shouldSendData(tick.getTick())) {
-                List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick());
-
-                if (!detectedObjects.isEmpty()) {
-                    sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
-                }
+                // here we know for a fact that the camera should send data and the list is not empty
+                List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick() - camera.getFrequency());
+                sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
             }
         });
         subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {

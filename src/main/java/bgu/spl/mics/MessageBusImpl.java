@@ -17,6 +17,12 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentMap<Class<?>, ConcurrentLinkedQueue<MicroService>> broadcastSubscribers;
 	private ConcurrentMap<MicroService, ConcurrentLinkedQueue<Message>> messageQueues;
 	private ConcurrentMap<Event<?>, Future<?>> eventFutures;
+	// color coding for debugging
+	final String GREEN = "\033[32m";
+    final String BLUE = "\033[34m";
+    final String RED = "\033[31m";
+	final String YELLOW = "\033[33m";
+    final String RESET = "\033[0m";
 
 	private MessageBusImpl() {
 		eventSubscribers = new ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<MicroService>>();
@@ -39,27 +45,30 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		broadcastSubscribers.computeIfAbsent(type, k -> new ConcurrentLinkedQueue<MicroService>()).add(m);
+		System.err.println(YELLOW +m.getName() + " subscribed to broadcast " + type + RESET);
 	}
 
 	@Override
-	public <T> void complete(Event<T> e, T result) {
+	public synchronized <T> void complete(Event<T> e, T result) {
 		Future<T> future = (Future<T>)eventFutures.get(e); // sus casting O_O
 		if(future != null)
 			future.resolve(result);
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public synchronized void sendBroadcast(Broadcast b) {
 		ConcurrentLinkedQueue<MicroService> subscribers = broadcastSubscribers.get(b.getClass());
 		if (subscribers != null) {
 			for (MicroService m : subscribers) {
 				messageQueues.get(m).add(b);
 			}
 		}
+		notifyAll(); // notify all threads that are waiting for a message
+		System.err.println(GREEN + "notify all" + RESET);
 	}
 
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
+	public synchronized <T> Future<T> sendEvent(Event<T> e) {
 		ConcurrentLinkedQueue<MicroService> subscribers = eventSubscribers.get(e.getClass());
 		if (subscribers == null || subscribers.isEmpty()) {
 			return null;
@@ -72,7 +81,8 @@ public class MessageBusImpl implements MessageBus {
 		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
 		eventFutures.put(e, future);
 		queue.add(e);
-		queue.notifyAll(); // notify all threads waiting on that queue
+		notifyAll(); // notify all threads that are waiting for a message
+		System.err.println(GREEN + "notify all" + RESET);
 		return future;
 	}
 
@@ -95,19 +105,22 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
+	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {
 		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
 		if (queue == null) {
 			throw new IllegalStateException("MicroService not registered");
 		}
-			while (queue.isEmpty()) {
-				try {
-					queue.wait();
-				}
-				catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+		while (queue.isEmpty()) {
+			try {
+				System.err.println(RED + "MicroService " + m.getName() + " is waiting for a message" + RESET);
+				wait();
+				System.err.println(RED + "MicroService " + m.getName() + " just woke up" + RESET);
+				queue = messageQueues.get(m);
 			}
-			return queue.poll();
-	}
+			catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		return queue.poll();
+}
 }

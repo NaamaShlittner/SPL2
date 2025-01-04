@@ -24,6 +24,12 @@ public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
     private final Map<Class<? extends Message>, Callback<?>> callbacks = new ConcurrentHashMap<>();
+    // color coding for debugging
+    final String GREEN = "\033[32m";
+    final String BLUE = "\033[34m";
+    final String RED = "\033[31m";
+    final String YELLOW = "\033[33m";
+    final String RESET = "\033[0m";
 
 
     /**
@@ -153,18 +159,21 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         MessageBusImpl.getInstance().register(this);
+        System.err.println(YELLOW + "Started: " + name + RESET);
         initialize();
         while (!terminated) {
             try {
                 Message message = MessageBusImpl.getInstance().awaitMessage(this);
-                Callback<?> callback = callbacks.get(message.getClass());
+                Callback callback = callbacks.get(message.getClass());
                 if (callback != null) {
-                    callback.call(null); // sus callback argument O_o
+                    System.err.println(GREEN + name + " Received message: " + message + RESET);
+                    callback.call(message); // sus callback argument O_o
                 }
             } catch (InterruptedException e) {
                 terminate();
             }
         }
+        System.err.println(RED + "Terminated: " + name + RESET);
         MessageBusImpl.getInstance().unregister(this);
     }
 

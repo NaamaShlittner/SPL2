@@ -32,7 +32,7 @@ public class PoseService extends MicroService {
      */
     @Override
     protected void initialize() {
-        subscribeBroadcast(TickBroadcast.class, tick -> {
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             sendEvent(new PoseEvent(gpsimu.getPoseAtTime(tick.getTick())));
         });
     }

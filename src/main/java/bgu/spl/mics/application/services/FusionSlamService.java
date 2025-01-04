@@ -43,31 +43,31 @@ public class FusionSlamService extends MicroService {
     @Override
     protected void initialize() {
         // Subscribe to TickBroadcast
-        subscribeBroadcast(TickBroadcast.class, tick -> {
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             statisticalFolder.setSystemRuntime(tick.getTick());
         });
 
         // Subscribe to TrackedObjectsEvent
-        subscribeEvent(TrackedObjectsEvent.class, event -> {
+        subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
             fusionSlam.processTrackedObjects(event.getTrackedObjects());
             statisticalFolder.incrementNumTrackedObjects();
             complete(event, event.getTrackedObjects());
         });
 
         // Subscribe to PoseEvent
-        subscribeEvent(PoseEvent.class, event -> {
+        subscribeEvent(PoseEvent.class, (PoseEvent event) -> {
             fusionSlam.updatePose(event.getPose());
             complete(event, event.getPose());
         });
 
         // Subscribe to TerminatedBroadcast
-        subscribeBroadcast(TerminatedBroadcast.class, terminated -> {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminated) -> {
             writeOutputFile();
             terminate();
         });
 
         // Subscribe to CrashedBroadcast
-        subscribeBroadcast(CrashedBroadcast.class, crashed -> {
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crashed) -> {
             fusionSlam.handleCrash(crashed.getCrashDetails());
             writeErrorOutputFile(crashed.getCrashDetails(), crashed.getFaultySensor(), crashed.getLastFrames(), crashed.getPoses());
         });

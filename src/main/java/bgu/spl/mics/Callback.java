@@ -5,6 +5,12 @@ package bgu.spl.mics;
  */
 public interface Callback<T> {
 
-    public void call(T c);
-
+    /**
+     * This method is called when the micro-service has received a message that
+     * matches its type.
+     * @param c The callback that should be called when messages of type
+     *                 {@code type} are taken from this micro-service message
+     *                 queue.
+     */
+    void call(T c);
 }

@@ -18,7 +18,6 @@ public class Config {
     int tickTime;
     int duration;
     GPSIMU gpsimu;
-    LiDarDataBase lidarDataBase;
 
     private Config(List<Camera> cameras, List<LiDarWorkerTracker> LiDarWorkers, int tickTime, int duration, GPSIMU gpsimu) {
         this.cameras = cameras;

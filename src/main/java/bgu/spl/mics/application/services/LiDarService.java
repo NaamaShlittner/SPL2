@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class LiDarService extends MicroService {
     private LiDarWorkerTracker liDarWorkerTracker;
+    private List<TrackedObjectsEvent> trackedObjectsEventsWaiting;
 
     /**
      * Constructor for LiDarService.
@@ -35,19 +36,25 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // sus method O_o
-        // needs rewriting asap
-        subscribeEvent(DetectObjectsEvent.class, detectObjectsEvent -> {
+        subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent detectObjectsEvent) -> { 
+            // when we receive a DetectObjectsEvent, we process the data and add the TrackedObjectsEvent to the waiting list to be sent later at a delayed time
             List<TrackedObject> trackedObjects = liDarWorkerTracker.processData(detectObjectsEvent);
-            sendEvent(new TrackedObjectsEvent(trackedObjects));
+            trackedObjectsEventsWaiting.add(new TrackedObjectsEvent(trackedObjects, detectObjectsEvent.getTickTime()));
         });
-        subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
             terminate();
         });
-        subscribeBroadcast(CrashedBroadcast.class, Crash -> {
+        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
             System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
         });
 
-        subscribeBroadcast(TickBroadcast.class, tick -> {});
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
+            for (TrackedObjectsEvent trackedObjectsEvent : trackedObjectsEventsWaiting) {
+                if (tick.getTick() >= trackedObjectsEvent.getReceivedTick() + liDarWorkerTracker.getFrequency()) {
+                    trackedObjectsEventsWaiting.remove(trackedObjectsEvent);
+                    sendEvent(trackedObjectsEvent);
+                }
+            }
+        });
     }
 }

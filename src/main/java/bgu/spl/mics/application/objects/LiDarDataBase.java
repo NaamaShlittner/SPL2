@@ -43,13 +43,16 @@ public class LiDarDataBase {
      */
     public List<TrackedObject> getTrackedObjects(DetectObjectsEvent detectObjectsEvent) {
         List<TrackedObject> trackedObjects = new ArrayList<>();
+        // for each detected object, find the corresponding cloud points and create a TrackedObject instance
         for (DetectedObject detectedObject : detectObjectsEvent.getDetectedObjects()) {
-            TrackedObject trackedObject = new TrackedObject(
-                detectedObject.getId(),
-                detectedObject.getTime(),
-                detectedObject.getDescription(),
-                detectedObject.getCoordinates()
-            );
+            ArrayList<CloudPoint> coordinates = new ArrayList<>();
+            // find the cloud points corresponding to the detected object
+            for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
+                if (stampedCloudPoints.getId().equals(detectedObject.getId())) {
+                    coordinates.addAll(stampedCloudPoints.getCloudPoints());
+                }
+            }
+            TrackedObject trackedObject = new TrackedObject(detectedObject.getId(), detectObjectsEvent.getTickTime(), detectedObject.getDescription(), coordinates);
             trackedObjects.add(trackedObject);
         }
         return trackedObjects;

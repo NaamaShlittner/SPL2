@@ -31,7 +31,7 @@ public class LiDarWorkerTracker {
         lock.lock();
         try {
             List<TrackedObject> trackedObjects = dataBase.getTrackedObjects(detectObjectsEvent);
-            lastTrackedObjects = trackedObjects; // Update the last tracked objects
+            lastTrackedObjects = trackedObjects; // Update the last tracked objects (very Sus O_o why do we need this?) 
             return trackedObjects;
         } finally {
             lock.unlock();
