@@ -1,10 +1,8 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 

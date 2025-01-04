@@ -39,7 +39,7 @@ public class TimeService extends MicroService {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
             terminate();
         });
-        for (int i = 0; i < Duration; i++) {
+        for (int i = 0; i < Duration && !isTimeToTerminateTime(); i++) {
             try {
                 System.err.println(BLUE + "Sent tick Broadcast: " + (i+1) + RESET);
                 sendBroadcast(new TickBroadcast(i+1));

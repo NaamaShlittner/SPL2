@@ -1,10 +1,6 @@
 package bgu.spl.mics;
 
-import jdk.javadoc.internal.doclets.toolkit.util.Utils;
-
-import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
@@ -123,5 +119,15 @@ public class MessageBusImpl implements MessageBus {
 			}
 		}
 		return queue.poll();
-}
+	}
+
+	public boolean areAllQueuesButMAreEmpty(MicroService m) {
+		for (MicroService ms : messageQueues.keySet()) {
+			if (ms != m && !messageQueues.get(ms).isEmpty()) {
+				return false;
+			}
+		}
+		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
+		return !queue.isEmpty();
+	}
 }
