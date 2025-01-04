@@ -30,4 +30,9 @@ public class DetectObjectsEvent implements Event<DetectedObject> {
         return tickTime;
     }
 
+    public String toString() {
+        return "DetectObjectsEvent: " + detectedObjects.stream().map(DetectedObject::toString).collect(Collectors.joining(", "))
+                + ", Camera=" + cameraId + ", time=" + tickTime;
+    }
+
 }

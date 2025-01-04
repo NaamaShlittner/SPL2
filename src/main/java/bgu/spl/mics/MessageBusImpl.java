@@ -60,7 +60,10 @@ public class MessageBusImpl implements MessageBus {
 		ConcurrentLinkedQueue<MicroService> subscribers = broadcastSubscribers.get(b.getClass());
 		if (subscribers != null) {
 			for (MicroService m : subscribers) {
-				messageQueues.get(m).add(b);
+				ConcurrentLinkedQueue<Message> q =  messageQueues.get(m);
+				if (q != null) {
+					q.add(b);
+				}
 			}
 		}
 		notifyAll(); // notify all threads that are waiting for a message
@@ -110,9 +113,9 @@ public class MessageBusImpl implements MessageBus {
 		}
 		while (queue.isEmpty()) {
 			try {
-				System.err.println(RED + "MicroService " + m.getName() + " is waiting for a message" + RESET);
+				// System.err.println(RED + "MicroService " + m.getName() + " is waiting for a message" + RESET);
 				wait();
-				System.err.println(RED + "MicroService " + m.getName() + " just woke up" + RESET);
+				// System.err.println(RED + "MicroService " + m.getName() + " just woke up" + RESET);
 				queue = messageQueues.get(m);
 			}
 			catch (InterruptedException e) {

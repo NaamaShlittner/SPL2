@@ -36,6 +36,9 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
+            terminate();
+        });
         for (int i = 0; i < Duration; i++) {
             try {
                 System.err.println(BLUE + "Sent tick Broadcast: " + (i+1) + RESET);
@@ -45,8 +48,8 @@ public class TimeService extends MicroService {
                 e.printStackTrace();
             }
         }
-
         sendBroadcast(new TerminatedBroadcast());
+        System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
         terminate();
     }
 }

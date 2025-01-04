@@ -33,4 +33,8 @@ public class CrashedBroadcast implements Broadcast {
     public List<Pose> getPoses() {
         return poses;
     }
+
+    public String toString() {
+        return "CrashedBroadcast: " + crashDetails + ", " + faultySensor + ", " + lastFrames + ", " + poses.toString();
+    }
 }

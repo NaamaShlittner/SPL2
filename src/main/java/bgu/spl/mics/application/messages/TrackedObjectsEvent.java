@@ -23,4 +23,8 @@ public class TrackedObjectsEvent implements Event<List<TrackedObject>> {
     public int getReceivedTick() {
         return receivedTick;
     }
+
+    public String toString() {
+        return "TrackedObjectsEvent: " + trackedObjects.toString();
+    }
 }

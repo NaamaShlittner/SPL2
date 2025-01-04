@@ -14,4 +14,8 @@ public class PoseEvent implements Event<Pose> {
     public Pose getPose() {
         return pose;
     }
+
+    public String toString() {
+        return "PoseEvent: " + pose;
+    }
 }

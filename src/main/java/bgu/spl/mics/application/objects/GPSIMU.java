@@ -24,7 +24,6 @@ public class GPSIMU {
     public synchronized  Pose getPoseAtTime(int time) {
         for (Pose pose : poseList) {
             if (pose.getTime() == time) {
-                System.out.println("getPoseAtTime");
                 return pose;
             }
         }

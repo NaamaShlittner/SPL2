@@ -39,4 +39,8 @@ public class TrackedObject {
     public Pose getPose() {
         return new Pose(time);
     }
+
+    public String toString() {
+        return "TrackedObject: id=" + id + ", desc=" + description + ", time=" + time + ", coordinates=" + coordinates.toString();
+    }
 }

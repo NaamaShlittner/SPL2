@@ -18,6 +18,7 @@ public class PoseService extends MicroService {
     private GPSIMU gpsimu;
     final String PURPLE = "\033[35m";
     final String RESET = "\033[0m";
+    final String BLUE = "\033[34m";
     /**
      * Constructor for PoseService.
      *
@@ -35,10 +36,15 @@ public class PoseService extends MicroService {
     @Override
     protected void initialize() {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
-            System.out.println(PURPLE + "PoseService sending PoseEvent at tick " + tick.getTick() + RESET);
-            sendEvent(new PoseEvent(gpsimu.getPoseAtTime(tick.getTick())));
+            PoseEvent e = new PoseEvent(gpsimu.getPoseAtTime(tick.getTick()));
+                System.out.println(PURPLE + "PoseService sending PoseEvent at tick " + tick.getTick() + RESET);
+                sendEvent(e);
+                if (gpsimu.getPoseAtTime(tick.getTick() + 1) == null) {
+                    sendBroadcast(new TerminatedBroadcast());
+                    System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
+                }
         });
-         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
             terminate();
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
