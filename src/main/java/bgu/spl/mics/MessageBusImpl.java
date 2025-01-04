@@ -82,7 +82,6 @@ public class MessageBusImpl implements MessageBus {
 		eventFutures.put(e, future);
 		queue.add(e);
 		notifyAll(); // notify all threads that are waiting for a message
-		System.err.println(GREEN + "notify all" + RESET);
 		return future;
 	}
 
