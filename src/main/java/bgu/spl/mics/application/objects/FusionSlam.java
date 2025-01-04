@@ -41,12 +41,23 @@ public class FusionSlam {
     public synchronized void processTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject obj : trackedObjects) {
             addLandmark(obj.getLandmark());
-            addPose(obj.getPose());
+            addPose(transformCoordinates(obj.getPose()));
         }
     }
 
     public synchronized void updatePose(Pose pose) {
-        addPose(pose);
+        addPose(transformCoordinates(pose));
+    }
+
+    public Pose transformCoordinates(Pose pose) {
+        double thetaRad = Math.toRadians(pose.getYaw());
+        double cosTheta = Math.cos(thetaRad);
+        double sinTheta = Math.sin(thetaRad);
+
+        double xGlobal = cosTheta * pose.getX() - sinTheta * pose.getY() + pose.getX();
+        double yGlobal = sinTheta * pose.getX() + cosTheta * pose.getY() + pose.getY();
+
+        return new Pose((float)xGlobal, (float)yGlobal, pose.getYaw(),pose.getTime());
     }
 
     public synchronized void handleCrash(String crashDetails) {
