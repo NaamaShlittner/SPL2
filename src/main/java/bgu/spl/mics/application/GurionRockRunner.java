@@ -1,7 +1,10 @@
 package bgu.spl.mics.application;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.gson_files.Config;
@@ -30,9 +33,8 @@ public class GurionRockRunner {
      */
     public static void main(String[] args) throws InterruptedException {
         System.out.println("System is starting...");
-        
-        Config c = Config.parseInputConfig("C:\\Users\\n" + //
-                        "aama\\Downloads\\Skeleton\\example input\\configuration_file.json");
+
+        Config c = Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example input\\configuration_file.json");
         // Config c = Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example_input_2\\configuration_file.json");
         
         List<Camera> cameras = c.getCameras();
