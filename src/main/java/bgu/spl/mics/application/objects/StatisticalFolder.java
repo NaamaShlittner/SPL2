@@ -1,20 +1,22 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * StatisticalFolder is a singleton class responsible for aggregating key metrics.
  */
 public class StatisticalFolder {
-    private int systemRuntime;
-    private int numDetectedObjects;
-    private int numTrackedObjects;
-    private int numLandmarks;
+    private AtomicInteger systemRuntime;
+    private AtomicInteger numDetectedObjects;
+    private AtomicInteger numTrackedObjects;
+    private AtomicInteger numLandmarks;
 
     // Private constructor to prevent instantiation
     private StatisticalFolder() {
-        this.systemRuntime = 0;
-        this.numDetectedObjects = 0;
-        this.numTrackedObjects = 0;
-        this.numLandmarks = 0;
+        this.systemRuntime = new AtomicInteger(0);
+        this.numDetectedObjects = new AtomicInteger(0);
+        this.numTrackedObjects = new AtomicInteger(0);
+        this.numLandmarks = new AtomicInteger(0);
     }
 
     // Singleton instance holder
@@ -28,34 +30,34 @@ public class StatisticalFolder {
     }
 
     public int getSystemRuntime() {
-        return systemRuntime;
+        return systemRuntime.get();
     }
 
     public void setSystemRuntime(int systemRuntime) {
-        this.systemRuntime = systemRuntime;
+        this.systemRuntime.compareAndSet(this.systemRuntime.get(), systemRuntime);
     }
 
     public int getNumDetectedObjects() {
-        return numDetectedObjects;
+        return numDetectedObjects.get();
     }
 
     public void incrementNumDetectedObjects() {
-        this.numDetectedObjects++;
+        this.numDetectedObjects.incrementAndGet();
     }
 
     public int getNumTrackedObjects() {
-        return numTrackedObjects;
+        return numTrackedObjects.get();
     }
 
     public void incrementNumTrackedObjects() {
-        this.numTrackedObjects++;
+        this.numTrackedObjects.incrementAndGet();
     }
 
     public int getNumLandmarks() {
-        return numLandmarks;
+        return numLandmarks.get();
     }
 
     public void incrementNumLandmarks() {
-        this.numLandmarks++;
+        this.numLandmarks.incrementAndGet();
     }
 }

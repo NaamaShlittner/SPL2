@@ -51,7 +51,9 @@ public class FusionSlamService extends MicroService {
         // Subscribe to TrackedObjectsEvent
         subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
             fusionSlam.updateTrackedObjects(event.getTrackedObjects());
-            statisticalFolder.incrementNumTrackedObjects();
+            for (int i = 0; i < event.getTrackedObjects().size(); i++) {
+                statisticalFolder.incrementNumTrackedObjects();;
+            }
             complete(event, event.getTrackedObjects());
         });
 
@@ -63,8 +65,10 @@ public class FusionSlamService extends MicroService {
 
         // Subscribe to TerminatedBroadcast
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminated) -> {
-            writeOutputFile();
-            terminate();
+            if (terminated.getSenderClass() == TimeService.class) {
+                writeOutputFile();
+                terminate();
+            }
         });
 
         // Subscribe to CrashedBroadcast

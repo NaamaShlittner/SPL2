@@ -23,8 +23,8 @@
     "Circular_Base_1": {
       "coordinates": [
         {
-          "x": -3.212579,
-          "y": 1.8810332
+          "x": 3.161481,
+          "y": 5.81888
         }
       ],
       "description": "Circular Base",
@@ -71,8 +71,8 @@
       "id": "Wall_5"
     }
   },
-  "numTrackedObjects": 10,
+  "numTrackedObjects": 13,
   "numLandmarks": 7,
-  "systemRuntime": 20,
-  "numDetectedObjects": 10
+  "systemRuntime": 22,
+  "numDetectedObjects": 13
 }
