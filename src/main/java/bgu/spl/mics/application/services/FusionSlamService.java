@@ -74,6 +74,7 @@ public class FusionSlamService extends MicroService {
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crashed) -> {
             fusionSlam.handleCrash(crashed.getCrashDetails());
             writeErrorOutputFile(crashed.getCrashDetails(), crashed.getFaultySensor(), crashed.getLastFrames(), crashed.getPoses());
+            terminate();
         });
     }
 

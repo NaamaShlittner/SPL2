@@ -57,12 +57,16 @@ public class LiDarWorkerTracker {
         return status;
     }
 
-    public void setStatus(STATUS status) {
-        this.status = status;
-    }
-
     public List<TrackedObject> getLastTrackedObjects() {
         return lastTrackedObjects;
+    }
+
+    public void crash() {
+        status = STATUS.ERROR;
+    }
+
+    public void terminate() {
+        status = STATUS.DOWN;
     }
 
     public void setLastTrackedObjects(List<TrackedObject> lastTrackedObjects) {

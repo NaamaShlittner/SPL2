@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping
@@ -14,18 +17,31 @@ import java.util.Queue;
  * instance of FusionSlam exists.
  */
 public class FusionSlam {
-    private final List<LandMark> landmarks;
-    private final List<Pose> poses;
-    private final Queue<TrackedObject> objectsToProcess;
+    private final Vector<LandMark> landmarks;
+    private final Vector<Pose> poses;
+    private final ConcurrentLinkedQueue<TrackedObject> objectsToProcess;
+    private final AtomicInteger numOfActiveSensor = new AtomicInteger(0);
 
     private FusionSlam() {
-        landmarks = new ArrayList<>();
-        poses = new ArrayList<>();
-        objectsToProcess = new LinkedList<>();
+        landmarks = new Vector<>();
+        poses = new Vector<>();
+        objectsToProcess = new ConcurrentLinkedQueue<>();
     }
 
     private static class FusionSlamHolder {
         private static final FusionSlam INSTANCE = new FusionSlam();
+    }
+
+    public void IncrementNumOfActiveSensor(){
+        numOfActiveSensor.incrementAndGet();
+    }
+
+    public void DecrementNumOfActiveSensor(){
+        numOfActiveSensor.decrementAndGet();
+    }
+
+    public int getNumOfActiveSensor(){
+        return numOfActiveSensor.get();
     }
 
     public static FusionSlam getInstance() {
