@@ -2,6 +2,7 @@ package bgu.spl.mics.application.objects;
 
 import java.lang.Math;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -48,21 +49,13 @@ public class FusionSlam {
     public synchronized void processObjectPoses() {
         List<CloudPoint> currentObjectCoordinates;
         CloudPoint currentObjectCoordinatesAverage;
-        int lastAvailablePose = poses.get(poses.size() - 1).getTime();
-        boolean isObjectInLandmarks = false;
 
-
-        // for each object to process{
-            // for each pose{
-                // if object time == pose time{
-                // do calculations
-                // remove pose from poses
-                //}
-            // remove object from objects to process
-            //}
-        //}
-        for (TrackedObject objectToProcess : objectsToProcess) {
-            for(Pose pose: poses){
+        Iterator<TrackedObject> trackedObjectIterator = objectsToProcess.iterator();
+        while (trackedObjectIterator.hasNext()) {
+            TrackedObject objectToProcess = trackedObjectIterator.next();
+            Iterator<Pose> poseIterator = poses.iterator();
+            while(poseIterator.hasNext()){
+                Pose pose = poseIterator.next();
                 if (objectToProcess.getTime() == pose.getTime()) {
                     currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),pose);
                     currentObjectCoordinatesAverage = calculateCoordinatesAverage(currentObjectCoordinates);
@@ -73,14 +66,12 @@ public class FusionSlam {
                                     (landmark.getCoordinates().get(0).getY() + currentObjectCoordinatesAverage.getY()) / 2);
                             landmarks.set(landmarks.indexOf(landmark),
                                     new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(newCoords)));
-                            isObjectInLandmarks = true;
                         }
                     }
                     poses.remove(pose);
-
+                    objectsToProcess.remove(objectToProcess); 
                 }
-            }
-            objectsToProcess.remove(objectToProcess);        
+            }     
         }
     }
     

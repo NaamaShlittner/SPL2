@@ -1,68 +1,7 @@
 {
-  "landMarks": {
-    "Wall_3": {
-      "coordinates": [
-        {
-          "x": -7.29507,
-          "y": 3.365307
-        }
-      ],
-      "description": "Wall",
-      "id": "Wall_3"
-    },
-    "Circular_Base_1": {
-      "coordinates": [
-        {
-          "x": -3.212579,
-          "y": 1.8810332
-        }
-      ],
-      "description": "Circular Base",
-      "id": "Circular_Base_1"
-    },
-    "Wall_1": {
-      "coordinates": [
-        {
-          "x": 0.52423334,
-          "y": 0.006709948
-        }
-      ],
-      "description": "Wall",
-      "id": "Wall_1"
-    },
-    "Chair_Base_1": {
-      "coordinates": [
-        {
-          "x": 0.09779906,
-          "y": 5.91019
-        }
-      ],
-      "description": "Chair Base",
-      "id": "Chair_Base_1"
-    },
-    "Door": {
-      "coordinates": [
-        {
-          "x": -2.8280592,
-          "y": -1.3142982
-        }
-      ],
-      "description": "Door",
-      "id": "Door"
-    },
-    "Wall_5": {
-      "coordinates": [
-        {
-          "x": 0.8441498,
-          "y": 1.7026525
-        }
-      ],
-      "description": "Wall",
-      "id": "Wall_5"
-    }
-  },
-  "numTrackedObjects": 10,
-  "numLandmarks": 7,
-  "systemRuntime": 20,
-  "numDetectedObjects": 10
+  "landMarks": {},
+  "numTrackedObjects": 13,
+  "numLandmarks": 0,
+  "systemRuntime": 25,
+  "numDetectedObjects": 13
 }
