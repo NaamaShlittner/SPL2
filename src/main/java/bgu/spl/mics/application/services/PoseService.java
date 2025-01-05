@@ -39,7 +39,7 @@ public class PoseService extends MicroService {
                 System.out.println(PURPLE + "PoseService sending PoseEvent at tick " + tick.getTick() + RESET);
                 sendEvent(e);
                 if (gpsimu.getPoseAtTime(tick.getTick() + 1) == null) {
-                    sendBroadcast(new TerminatedBroadcast());
+                    sendBroadcast(new TerminatedBroadcast(this.getClass()));
                     System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
                 }
         });

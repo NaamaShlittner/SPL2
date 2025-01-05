@@ -8,6 +8,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
 
+import java.sql.Time;
 import java.util.List;
 
 /**
@@ -49,7 +50,9 @@ public class CameraService extends MicroService {
             }
         });
         subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
-            terminate();
+            if (broadcast.getSenderClass() == TimeService.class) {
+                terminate();
+            }
         });
         subscribeBroadcast(CrashedBroadcast.class, Crash -> {
             System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here

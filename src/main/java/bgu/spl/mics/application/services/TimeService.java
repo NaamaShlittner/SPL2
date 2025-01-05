@@ -48,7 +48,7 @@ public class TimeService extends MicroService {
                 e.printStackTrace();
             }
         }
-        sendBroadcast(new TerminatedBroadcast());
+        sendBroadcast(new TerminatedBroadcast(this.getClass()));
         System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
         terminate();
     }

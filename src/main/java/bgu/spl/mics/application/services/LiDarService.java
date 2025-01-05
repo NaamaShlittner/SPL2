@@ -45,11 +45,15 @@ public class LiDarService extends MicroService {
         subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent detectObjectsEvent) -> { 
             // when we receive a DetectObjectsEvent, we process the data and add the TrackedObjectsEvent to the waiting list to be sent later at a delayed time
             List<TrackedObject> trackedObjects = liDarWorkerTracker.processData(detectObjectsEvent);
-            StatisticalFolder.getInstance().incrementNumDetectedObjects();
+            for (TrackedObject trackedObject : trackedObjects) {
+                StatisticalFolder.getInstance().incrementNumDetectedObjects();
+            }
             trackedObjectsEventsWaiting.add(new TrackedObjectsEvent(trackedObjects, detectObjectsEvent.getTickTime()));
         });
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
-            terminate();
+            if (broadcast.getSenderClass() == TimeService.class) {
+                terminate();
+            }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
             System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
