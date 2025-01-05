@@ -35,4 +35,13 @@ public class TrackedObject {
     public ArrayList<CloudPoint> getCoordinates() {
         return coordinates;
     }
+
+    public String toString() {
+        return "TrackedObject{" +
+                "id='" + id + '\'' +
+                ", time=" + time +
+                ", description='" + description + '\'' +
+                ", coordinates=" + coordinates.toString() +
+                '}';
+    }
 }

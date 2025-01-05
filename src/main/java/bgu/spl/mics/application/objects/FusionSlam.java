@@ -51,6 +51,16 @@ public class FusionSlam {
         int lastAvailablePose = poses.get(poses.size() - 1).getTime();
         boolean isObjectInLandmarks = false;
 
+
+        // for each object to process{
+            // for each pose{
+                // if object time == pose time{
+                // do calculations
+                // remove pose from poses
+                //}
+            // remove object from objects to process
+            //}
+        //}
         while (!objectsToProcess.isEmpty() && objectsToProcess.peek().getTime() <= lastAvailablePose) {
             TrackedObject objectToProcess = objectsToProcess.remove();
             currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),

@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
 import java.util.Iterator;
 
@@ -44,6 +45,7 @@ public class LiDarService extends MicroService {
         subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent detectObjectsEvent) -> { 
             // when we receive a DetectObjectsEvent, we process the data and add the TrackedObjectsEvent to the waiting list to be sent later at a delayed time
             List<TrackedObject> trackedObjects = liDarWorkerTracker.processData(detectObjectsEvent);
+            StatisticalFolder.getInstance().incrementNumDetectedObjects();
             trackedObjectsEventsWaiting.add(new TrackedObjectsEvent(trackedObjects, detectObjectsEvent.getTickTime()));
         });
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {

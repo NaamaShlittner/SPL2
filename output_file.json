@@ -72,7 +72,7 @@
     }
   },
   "numTrackedObjects": 10,
-  "numLandmarks": 0,
-  "systemRuntime": 21,
-  "numDetectedObjects": 0
+  "numLandmarks": 7,
+  "systemRuntime": 20,
+  "numDetectedObjects": 10
 }
