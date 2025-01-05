@@ -1,21 +1,21 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.StatisticalFolder;
+import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.LandMark;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import bgu.spl.mics.application.messages.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
- * FusionSlamService integrates data from multiple sensors to build and update
- * the robot's global map.
- * 
  * This service receives TrackedObjectsEvents from LiDAR workers and PoseEvents from the PoseService,
  * transforming and updating the map with new landmarks.
  */
@@ -45,11 +45,12 @@ public class FusionSlamService extends MicroService {
         // Subscribe to TickBroadcast
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             statisticalFolder.setSystemRuntime(tick.getTick());
+            fusionSlam.performPeriodicUpdate(tick.getTick());
         });
 
         // Subscribe to TrackedObjectsEvent
         subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
-            fusionSlam.processTrackedObjects(event.getTrackedObjects());
+            fusionSlam.updateTrackedObjects(event.getTrackedObjects());
             statisticalFolder.incrementNumTrackedObjects();
             complete(event, event.getTrackedObjects());
         });
@@ -79,7 +80,16 @@ public class FusionSlamService extends MicroService {
         output.put("numDetectedObjects", statisticalFolder.getNumDetectedObjects());
         output.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
         output.put("numLandmarks", statisticalFolder.getNumLandmarks());
-        output.put("landMarks", fusionSlam.getLandmarks());
+
+        Map<String, Object> landmarksMap = new HashMap<>();
+        for (LandMark landmark : fusionSlam.getLandmarks()) {
+            Map<String, Object> landmarkDetails = new HashMap<>();
+            landmarkDetails.put("id", landmark.getId());
+            landmarkDetails.put("description", landmark.getDescription());
+            landmarkDetails.put("coordinates", landmark.getCoordinates());
+            landmarksMap.put(landmark.getId(), landmarkDetails);
+        }
+        output.put("landMarks", landmarksMap);
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter("output_file.json")) {
@@ -89,7 +99,7 @@ public class FusionSlamService extends MicroService {
         }
     }
 
-    private void writeErrorOutputFile(String error, String faultySensor, Object lastFrames, Object poses) {
+    private void writeErrorOutputFile(String error, String faultySensor, Object lastFrames, List<Pose> poses) {
         Map<String, Object> output = new HashMap<>();
         output.put("Error", error);
         output.put("faultySensor", faultySensor);

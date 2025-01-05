@@ -32,15 +32,7 @@ public class TrackedObject {
         return description;
     }
 
-    public LandMark getLandmark() {
-        return new LandMark(id, description, coordinates);
-    }
-
-    public Pose getPose() {
-        return new Pose(time);
-    }
-
-    public String toString() {
-        return "TrackedObject: id=" + id + ", desc=" + description + ", time=" + time + ", coordinates=" + coordinates.toString();
+    public ArrayList<CloudPoint> getCoordinates() {
+        return coordinates;
     }
 }

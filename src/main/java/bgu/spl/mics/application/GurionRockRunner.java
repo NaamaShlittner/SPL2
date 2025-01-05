@@ -51,7 +51,7 @@ public class GurionRockRunner {
         for (LiDarWorkerTracker liDarWorkerTracker : liDarWorkerTrackers) {
             services.add(new LiDarService(liDarWorkerTracker));
         }
-        services.add(new FusionSlamService(FusionSlam.getInstance(), new StatisticalFolder()));
+        services.add(new FusionSlamService(FusionSlam.getInstance(), StatisticalFolder.getInstance()));
         services.add(new PoseService(gpsimu));
         MicroService timeService = new TimeService(tickTime, duration);
 

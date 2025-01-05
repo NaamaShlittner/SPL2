@@ -1,10 +1,7 @@
 package bgu.spl.mics.application.objects;
 
 /**
- * The StatisticalFolder aggregates key metrics reflecting the system's performance. Both cameras
- * and LiDAR workers update this folder each time they send their observations, regardless of
- * whether the detections are new or re-detections. This ensures that the statistics accurately
- * represent all detected and tracked objects.
+ * StatisticalFolder is a singleton class responsible for aggregating key metrics.
  */
 public class StatisticalFolder {
     private int systemRuntime;
@@ -12,11 +9,22 @@ public class StatisticalFolder {
     private int numTrackedObjects;
     private int numLandmarks;
 
-    public StatisticalFolder() {
+    // Private constructor to prevent instantiation
+    private StatisticalFolder() {
         this.systemRuntime = 0;
         this.numDetectedObjects = 0;
         this.numTrackedObjects = 0;
         this.numLandmarks = 0;
+    }
+
+    // Singleton instance holder
+    private static class StatisticalFolderHolder {
+        private static final StatisticalFolder INSTANCE = new StatisticalFolder();
+    }
+
+    // Public method to provide access to the singleton instance
+    public static StatisticalFolder getInstance() {
+        return StatisticalFolderHolder.INSTANCE;
     }
 
     public int getSystemRuntime() {
