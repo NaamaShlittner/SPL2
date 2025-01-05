@@ -59,6 +59,10 @@ public class FusionSlam {
                 if (objectToProcess.getTime() == pose.getTime()) {
                     currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),pose);
                     currentObjectCoordinatesAverage = calculateCoordinatesAverage(currentObjectCoordinates);
+                    if (!isInLandmarks(objectToProcess.getId())) {
+                        landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(currentObjectCoordinatesAverage)));
+                        StatisticalFolder.getInstance().incrementNumLandmarks();
+                    }
                     for(LandMark landmark: landmarks){
                         if(landmark.getId().equals(objectToProcess.getId())){
                             CloudPoint newCoords = new CloudPoint(
@@ -69,7 +73,8 @@ public class FusionSlam {
                         }
                     }
                     poses.remove(pose);
-                    objectsToProcess.remove(objectToProcess); 
+                    objectsToProcess.remove(objectToProcess);
+                    break;
                 }
             }     
         }
@@ -130,5 +135,14 @@ public class FusionSlam {
         landmarks.clear();
         poses.clear();
         objectsToProcess.clear();
+    }
+
+    public boolean isInLandmarks(String id){
+        for(LandMark landmark: landmarks){
+            if(landmark.getId().equals(id)){
+                return true;
+            }
+        }
+        return false;
     }
 }
