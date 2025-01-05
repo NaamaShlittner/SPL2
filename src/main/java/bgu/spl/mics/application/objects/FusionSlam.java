@@ -61,30 +61,29 @@ public class FusionSlam {
             // remove object from objects to process
             //}
         //}
-        while (!objectsToProcess.isEmpty() && objectsToProcess.peek().getTime() <= lastAvailablePose) {
-            TrackedObject objectToProcess = objectsToProcess.remove();
-            currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),
-                    poses.get(objectToProcess.getTime() - 1));
-            currentObjectCoordinatesAverage = calculateCoordinatesAverage(currentObjectCoordinates);
+        for (TrackedObject objectToProcess : objectsToProcess) {
+            for(Pose pose: poses){
+                if (objectToProcess.getTime() == pose.getTime()) {
+                    currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),pose);
+                    currentObjectCoordinatesAverage = calculateCoordinatesAverage(currentObjectCoordinates);
+                    for(LandMark landmark: landmarks){
+                        if(landmark.getId().equals(objectToProcess.getId())){
+                            CloudPoint newCoords = new CloudPoint(
+                                    (landmark.getCoordinates().get(0).getX() + currentObjectCoordinatesAverage.getX()) / 2,
+                                    (landmark.getCoordinates().get(0).getY() + currentObjectCoordinatesAverage.getY()) / 2);
+                            landmarks.set(landmarks.indexOf(landmark),
+                                    new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(newCoords)));
+                            isObjectInLandmarks = true;
+                        }
+                    }
+                    poses.remove(pose);
 
-            for (int i = 0; i < landmarks.size(); i++) {
-                if (landmarks.get(i).getId().equals(objectToProcess.getId())) {
-                    CloudPoint newCoords = new CloudPoint(
-                            (landmarks.get(i).getCoordinates().get(0).getX() + currentObjectCoordinatesAverage.getX()) / 2,
-                            (landmarks.get(i).getCoordinates().get(0).getY() + currentObjectCoordinatesAverage.getY()) / 2);
-                    landmarks.set(i,
-                            new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(newCoords)));
-                    isObjectInLandmarks = true;
                 }
             }
-            if (!isObjectInLandmarks) {
-                landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(),
-                        List.of(currentObjectCoordinatesAverage)));
-                StatisticalFolder.getInstance().incrementNumLandmarks();
-            }
-            isObjectInLandmarks = false;
+            objectsToProcess.remove(objectToProcess);        
         }
     }
+    
 
     public List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> relativeCoordinates, Pose pose) {
         double yawRadians;

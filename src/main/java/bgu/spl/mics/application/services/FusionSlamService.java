@@ -54,7 +54,6 @@ public class FusionSlamService extends MicroService {
             statisticalFolder.incrementNumTrackedObjects();
             complete(event, event.getTrackedObjects());
         });
-
         // Subscribe to PoseEvent
         subscribeEvent(PoseEvent.class, (PoseEvent event) -> {
             fusionSlam.updatePose(event.getPose());

@@ -1,78 +1,28 @@
 {
   "landMarks": {
-    "Wall_4": {
-      "coordinates": [
-        {
-          "x": 1.2447703,
-          "y": 5.0995464
-        }
-      ],
-      "description": "Wall",
-      "id": "Wall_4"
-    },
     "Wall_3": {
       "coordinates": [
         {
-          "x": -2.7938924,
-          "y": 5.7696776
+          "x": -7.29507,
+          "y": 3.365307
         }
       ],
       "description": "Wall",
       "id": "Wall_3"
     },
-    "Circular_Base_1": {
-      "coordinates": [
-        {
-          "x": -3.212579,
-          "y": 1.8810332
-        }
-      ],
-      "description": "Circular Base",
-      "id": "Circular_Base_1"
-    },
     "Wall_1": {
       "coordinates": [
         {
-          "x": -1.242396,
-          "y": 2.9075606
+          "x": 0.52423334,
+          "y": 0.006709948
         }
       ],
       "description": "Wall",
       "id": "Wall_1"
-    },
-    "Chair_Base_1": {
-      "coordinates": [
-        {
-          "x": 0.09779906,
-          "y": 5.91019
-        }
-      ],
-      "description": "Chair Base",
-      "id": "Chair_Base_1"
-    },
-    "Door": {
-      "coordinates": [
-        {
-          "x": -2.8280592,
-          "y": -1.3142982
-        }
-      ],
-      "description": "Door",
-      "id": "Door"
-    },
-    "Wall_5": {
-      "coordinates": [
-        {
-          "x": 0.8441498,
-          "y": 1.7026525
-        }
-      ],
-      "description": "Wall",
-      "id": "Wall_5"
     }
   },
-  "numTrackedObjects": 10,
-  "numLandmarks": 7,
+  "numTrackedObjects": 9,
+  "numLandmarks": 2,
   "systemRuntime": 20,
-  "numDetectedObjects": 10
+  "numDetectedObjects": 11
 }
