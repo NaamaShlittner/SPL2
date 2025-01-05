@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 
 /**
@@ -42,58 +43,104 @@ public class FusionSlam {
 
     // Updates the robot's pose
     public synchronized void updatePose(Pose pose) {
+        if (pose == null) {
+            throw new IllegalArgumentException("Pose cannot be null");
+        }
         poses.add(pose);
         processObjectPoses();
     }
 
-    public synchronized void processObjectPoses() {
-        List<CloudPoint> currentObjectCoordinates;
-        CloudPoint currentObjectCoordinatesAverage;
+    private final List<TrackedObject> waitingObjects = new ArrayList<>();
 
-        Iterator<TrackedObject> trackedObjectIterator = objectsToProcess.iterator();
-        while (trackedObjectIterator.hasNext()) {
-            TrackedObject objectToProcess = trackedObjectIterator.next();
-            Iterator<Pose> poseIterator = poses.iterator();
-            while(poseIterator.hasNext()){
-                Pose pose = poseIterator.next();
-                if (objectToProcess.getTime() == pose.getTime()) {
-                    currentObjectCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(),pose);
-                    currentObjectCoordinatesAverage = calculateCoordinatesAverage(currentObjectCoordinates);
-                    if (!isInLandmarks(objectToProcess.getId())) {
-                        landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(currentObjectCoordinatesAverage)));
-                        StatisticalFolder.getInstance().incrementNumLandmarks();
-                    }
-                    for(LandMark landmark: landmarks){
-                        if(landmark.getId().equals(objectToProcess.getId())){
-                            CloudPoint newCoords = new CloudPoint(
-                                    (landmark.getCoordinates().get(0).getX() + currentObjectCoordinatesAverage.getX()) / 2,
-                                    (landmark.getCoordinates().get(0).getY() + currentObjectCoordinatesAverage.getY()) / 2);
-                            landmarks.set(landmarks.indexOf(landmark),
-                                    new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), List.of(newCoords)));
-                        }
-                    }
-                    poses.remove(pose);
-                    objectsToProcess.remove(objectToProcess);
-                    break;
-                }
-            }     
+public synchronized void processObjectPoses() {
+    Iterator<TrackedObject> trackedObjectIterator = objectsToProcess.iterator();
+    while (trackedObjectIterator.hasNext()) {
+        TrackedObject objectToProcess = trackedObjectIterator.next();
+        Pose pose = poses.stream()
+                .filter(p -> p.getTime() == objectToProcess.getTime())
+                .findFirst()
+                .orElse(null);
+
+        if (pose == null) {
+            System.out.println("Pose for time " + objectToProcess.getTime() + " not found. Moving to waiting list.");
+            waitingObjects.add(objectToProcess); // Add to waiting list
+            trackedObjectIterator.remove(); // Remove from objectsToProcess
+            continue;
+        }
+
+        // Process object with the matching pose
+        List<CloudPoint> globalCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(), pose);
+        Optional<LandMark> existingLandmark = landmarks.stream()
+                .filter(l -> l.getId().equals(objectToProcess.getId()))
+                .findFirst();
+
+        if (existingLandmark.isPresent()) {
+            LandMark landmark = existingLandmark.get();
+            List<CloudPoint> existingCoordinates = landmark.getCoordinates();
+            List<CloudPoint> updatedCoordinates = new ArrayList<>();
+
+            int k = Math.min(existingCoordinates.size(), globalCoordinates.size());
+            for (int i = 0; i < k; i++) {
+                CloudPoint li = existingCoordinates.get(i);
+                CloudPoint ci = globalCoordinates.get(i);
+                updatedCoordinates.add(new CloudPoint(
+                        (li.getX() + ci.getX()) / 2,
+                        (li.getY() + ci.getY()) / 2
+                ));
+            }
+
+            if (globalCoordinates.size() > k) {
+                updatedCoordinates.addAll(globalCoordinates.subList(k, globalCoordinates.size()));
+            }
+
+            landmarks.set(landmarks.indexOf(landmark),
+                    new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), updatedCoordinates));
+        } else {
+            landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), globalCoordinates));
+            StatisticalFolder.getInstance().incrementNumLandmarks();
+        }
+
+        poses.removeIf(p -> p.getTime() == pose.getTime());
+        trackedObjectIterator.remove(); // Successfully processed
+    }
+
+    // Reprocess waiting objects if new poses are added
+    reprocessWaitingObjects();
+}
+
+private void reprocessWaitingObjects() {
+    Iterator<TrackedObject> iterator = waitingObjects.iterator();
+    while (iterator.hasNext()) {
+        TrackedObject object = iterator.next();
+        Pose pose = poses.stream()
+                .filter(p -> p.getTime() == object.getTime())
+                .findFirst()
+                .orElse(null);
+
+        if (pose != null) {
+            System.out.println("Reprocessing object with time " + object.getTime());
+            objectsToProcess.add(object);
+            iterator.remove();
         }
     }
-    
-
-    public List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> relativeCoordinates, Pose pose) {
-        double yawRadians;
-        double xGlobal;
-        double yGlobal;
+}
+    public synchronized List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> relativeCoordinates, Pose pose) {
+        double yawRadians = pose.getYaw() * Math.PI / 180;
+        System.out.println("Yaw: " + yawRadians);
+        double cosTheta = Math.cos(yawRadians);
+        double sinTheta = Math.sin(yawRadians);
         List<CloudPoint> globalCloudPoints = new ArrayList<>();
-
+int i =0;
         for (CloudPoint relativeCloudPoint : relativeCoordinates) {
-            yawRadians = pose.getYaw() * Math.PI / 180;
-            xGlobal = (Math.cos(yawRadians) * relativeCloudPoint.getX())
-                    - (Math.sin(yawRadians) * relativeCloudPoint.getY()) + pose.getX();
-            yGlobal = (Math.sin(yawRadians) * relativeCloudPoint.getX())
-                    + (Math.cos(yawRadians) * relativeCloudPoint.getY()) + pose.getY();
+            System.out.println(i+"Relative cloud point: " + relativeCloudPoint);
+            System.out.println(i+"Pose: " + pose.toString());
+            double xGlobal = (cosTheta * relativeCloudPoint.getX() - sinTheta * relativeCloudPoint.getY() + pose.getX());
+            System.out.println(i+"XGlobal: " + xGlobal);
+            double yGlobal =  (sinTheta * relativeCloudPoint.getX() + cosTheta * relativeCloudPoint.getY() + pose.getY());
+            System.out.println(i+"YGlobal: " + yGlobal);
             globalCloudPoints.add(new CloudPoint((float)xGlobal, (float)yGlobal));
+            System.out.println(i+"Global cloud point: " + globalCloudPoints.get(globalCloudPoints.size() - 1));
+            i++;
         }
         return globalCloudPoints;
     }
