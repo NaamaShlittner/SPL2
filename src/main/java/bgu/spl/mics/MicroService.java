@@ -177,9 +177,4 @@ public abstract class MicroService implements Runnable {
         MessageBusImpl.getInstance().unregister(this);
     }
 
-    // used to check if the queue is empty in the TimeService
-    public boolean isTimeToTerminateTime(){
-        return MessageBusImpl.getInstance().areAllQueuesButMAreEmpty(this);
-    }
-
 }

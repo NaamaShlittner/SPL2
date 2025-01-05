@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
+import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
@@ -30,7 +31,7 @@ public class LiDarService extends MicroService {
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
      */
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
-        super("LiDarService");
+        super("LiDarService-" + LiDarWorkerTracker.getId());
         trackedObjectsEventsWaiting = new ArrayList<TrackedObjectsEvent>();
         this.liDarWorkerTracker = LiDarWorkerTracker;
     }
@@ -51,18 +52,30 @@ public class LiDarService extends MicroService {
             trackedObjectsEventsWaiting.add(new TrackedObjectsEvent(trackedObjects, detectObjectsEvent.getTickTime()));
         });
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
-            if (broadcast.getSenderClass() == TimeService.class) {
+            if (broadcast.getSenderClass().equals(TimeService.class)) {
+                liDarWorkerTracker.terminate();
+                FusionSlam.getInstance().DecrementNumOfActiveSensor();
                 terminate();
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
-            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
+            liDarWorkerTracker.terminate();
+            FusionSlam.getInstance().DecrementNumOfActiveSensor();
+            terminate();
         });
 
         subscribeBroadcast(TickBroadcast.class, tick -> {
             Iterator<TrackedObjectsEvent> iterator = trackedObjectsEventsWaiting.iterator();
             while (iterator.hasNext()) {
                 TrackedObjectsEvent trackedObjectsEvent = iterator.next();
+                for (TrackedObject trackedObject : trackedObjectsEvent.getTrackedObjects()) {
+                    if (trackedObject.getId() == "ERROR") {
+                        liDarWorkerTracker.crash();
+                        sendBroadcast(new CrashedBroadcast(trackedObject.getDescription(), this.getName()));
+                        terminate();
+                        break;
+                    }
+                }
                 if (tick.getTick() >= trackedObjectsEvent.getReceivedTick() + liDarWorkerTracker.getFrequency()) {
                     iterator.remove();
                     System.out.println(PURPLE + "LiDarService: Sending TrackedObjectsEvent " + trackedObjectsEvent.getTrackedObjects() + RESET);
@@ -70,5 +83,6 @@ public class LiDarService extends MicroService {
                 }
             }
         });
+        FusionSlam.getInstance().IncrementNumOfActiveSensor();
     }
 }

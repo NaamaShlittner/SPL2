@@ -1,7 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 
 /**
@@ -43,13 +45,18 @@ public class TimeService extends MicroService {
             try {
                 System.err.println(BLUE + "Sent tick Broadcast: " + (i+1) + RESET);
                 sendBroadcast(new TickBroadcast(i+1));
-                Thread.sleep(TickTime);
+                Thread.sleep(TickTime * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        sendBroadcast(new TerminatedBroadcast(this.getClass()));
         System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
+        sendBroadcast(new TerminatedBroadcast(this.getClass()));
         terminate();
+    }
+
+        // used to check if the queue is empty in the TimeService
+    public boolean isTimeToTerminateTime(){
+        return FusionSlam.getInstance().getNumOfActiveSensor() == 0;
     }
 }

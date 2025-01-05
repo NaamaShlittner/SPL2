@@ -48,7 +48,7 @@ public class LiDarDataBase {
             ArrayList<CloudPoint> coordinates = new ArrayList<>();
             // find the cloud points corresponding to the detected object
             for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
-                if (stampedCloudPoints.getId().equals(detectedObject.getId())) {
+                if (stampedCloudPoints.getTime() == (detectObjectsEvent.getTickTime())) {
                     coordinates.addAll(stampedCloudPoints.getCloudPoints());
                 }
             }

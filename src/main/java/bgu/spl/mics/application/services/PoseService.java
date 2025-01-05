@@ -5,6 +5,7 @@ import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.PoseEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 
 
@@ -40,14 +41,18 @@ public class PoseService extends MicroService {
                 sendEvent(e);
                 if (gpsimu.getPoseAtTime(tick.getTick() + 1) == null) {
                     sendBroadcast(new TerminatedBroadcast(this.getClass()));
-                    System.err.println(BLUE +  getName() +" Sent Terminated Broadcast." + RESET);
+                    FusionSlam.getInstance().DecrementNumOfActiveSensor();
+                    terminate();
                 }
         });
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
+            FusionSlam.getInstance().DecrementNumOfActiveSensor();
             terminate();
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
-            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
+            FusionSlam.getInstance().DecrementNumOfActiveSensor();
+            terminate();
         });
+        FusionSlam.getInstance().IncrementNumOfActiveSensor();
     }
 }

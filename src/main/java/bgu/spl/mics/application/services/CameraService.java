@@ -7,6 +7,7 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.FusionSlam;
 
 import java.sql.Time;
 import java.util.List;
@@ -45,17 +46,27 @@ public class CameraService extends MicroService {
             if (camera.shouldSendData(tick.getTick())) {
                 // here we know for a fact that the camera should send data and the list is not empty
                 List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick() - camera.getFrequency());
+                for (DetectedObject detectedObject : detectedObjects) {
+                    if (detectedObject.getId() == "ERROR") {
+                        camera.crash();
+                        sendBroadcast(new CrashedBroadcast(detectedObject.getDescription(), this.getName()));
+                        terminate();
+                    }
+                }
                 System.out.println(PURPLE + "Camera " + camera.getId() + " detected " + detectedObjects.size() + " objects at tick " + tick.getTick() + RESET);
                 sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
             }
         });
         subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
-            if (broadcast.getSenderClass() == TimeService.class) {
+            if (broadcast.getSenderClass().equals(TimeService.class)) {
+                camera.terminate();
                 terminate();
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, Crash -> {
-            System.out.println(("Sad Times :(")); // sus line O_o wtf should we do here
+            camera.terminate();
+            terminate();
         });
+        FusionSlam.getInstance().IncrementNumOfActiveSensor();
     }
 }

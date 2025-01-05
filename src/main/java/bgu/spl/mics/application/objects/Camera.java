@@ -50,6 +50,15 @@ public class Camera {
     public int getFrequency() {
         return frequency;
     }
+
+    public void crash() {
+        status = STATUS.ERROR;
+    }
+
+    public void terminate() {
+        status = STATUS.DOWN;
+    }
+
     public String toString() {
         return "Camera{" +
                 "id='" + id + '\'' +
