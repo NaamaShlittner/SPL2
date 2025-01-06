@@ -62,10 +62,12 @@ public class LiDarWorkerTracker {
     }
 
     public void crash() {
+        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         status = STATUS.ERROR;
     }
 
     public void terminate() {
+        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         status = STATUS.DOWN;
     }
 

@@ -46,6 +46,9 @@ public class FusionSlamService extends MicroService {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             statisticalFolder.setSystemRuntime(tick.getTick());
             fusionSlam.performPeriodicUpdate(tick.getTick());
+            if (fusionSlam.isTimeToTerminate()){
+                terminate();
+            }
         });
 
         // Subscribe to TrackedObjectsEvent

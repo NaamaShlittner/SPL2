@@ -12,6 +12,7 @@ public class Camera {
     private final int frequency;
     private STATUS status = STATUS.UP;
     private final List<StampedDetectedObjects> detectedObjectsList;
+    private int maxDetectedTime = 0;
 
     public Camera(String id, int frequency, String key, String cameraDataPath) {
         this.id = id;
@@ -19,10 +20,19 @@ public class Camera {
         this.detectedObjectsList = new ArrayList<>();
         List<StampedDetectedObjects> stampedDetectedObjects = StampedDetectedObjectsDeserializer.getCameraData(cameraDataPath, key);
         this.detectedObjectsList.addAll(stampedDetectedObjects);
+        for (StampedDetectedObjects stampedDetectedObject : stampedDetectedObjects) {
+            if (stampedDetectedObject.getTime() > maxDetectedTime) {
+                maxDetectedTime = stampedDetectedObject.getTime();
+            }
+        }
     }
 
     public String getId() {
         return id;
+    }
+
+    public boolean isFinished(int tick) {
+        return tick > maxDetectedTime + frequency;
     }
 
     public boolean shouldSendData(int tick){
@@ -52,10 +62,12 @@ public class Camera {
     }
 
     public void crash() {
+        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         status = STATUS.ERROR;
     }
 
     public void terminate() {
+        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         status = STATUS.DOWN;
     }
 

@@ -56,6 +56,10 @@ public class CameraService extends MicroService {
                 System.out.println(PURPLE + "Camera " + camera.getId() + " detected " + detectedObjects.size() + " objects at tick " + tick.getTick() + RESET);
                 sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
             }
+            if (camera.isFinished(tick.getTick())) {
+                camera.terminate();
+                terminate();
+            }
         });
         subscribeBroadcast(TerminatedBroadcast.class, broadcast -> {
             if (broadcast.getSenderClass().equals(TimeService.class)) {

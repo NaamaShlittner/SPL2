@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.FusionSlam;
+import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.StatisticalFolder;
 import bgu.spl.mics.application.objects.TrackedObject;
@@ -54,13 +55,11 @@ public class LiDarService extends MicroService {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast broadcast) -> {
             if (broadcast.getSenderClass().equals(TimeService.class)) {
                 liDarWorkerTracker.terminate();
-                FusionSlam.getInstance().DecrementNumOfActiveSensor();
                 terminate();
             }
         });
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast Crash) -> {
             liDarWorkerTracker.terminate();
-            FusionSlam.getInstance().DecrementNumOfActiveSensor();
             terminate();
         });
 
@@ -80,6 +79,10 @@ public class LiDarService extends MicroService {
                     iterator.remove();
                     System.out.println(PURPLE + "LiDarService: Sending TrackedObjectsEvent " + trackedObjectsEvent.getTrackedObjects() + RESET);
                     sendEvent(trackedObjectsEvent);
+                    if (LiDarDataBase.getInstance().isFinished(tick.getTick(), liDarWorkerTracker.getFrequency())) {
+                        liDarWorkerTracker.terminate();
+                        terminate();
+                    }
                 }
             }
         });

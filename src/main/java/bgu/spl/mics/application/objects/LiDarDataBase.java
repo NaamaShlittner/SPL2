@@ -13,9 +13,15 @@ import java.util.List;
 public class LiDarDataBase {
     private static LiDarDataBase instance;
     private List<StampedCloudPoints> cloudPoints;
+    private int maxTimeInDataBase = 0;
 
     private LiDarDataBase(String filePath) {
         this.cloudPoints = StampedCloudPointsDeserializer.getLidarData(filePath);
+        for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
+            if (stampedCloudPoints.getTime() > maxTimeInDataBase) {
+                maxTimeInDataBase = stampedCloudPoints.getTime();
+            }
+        }
     }
 
     /**
@@ -34,6 +40,10 @@ public class LiDarDataBase {
     public static LiDarDataBase getInstance() {
         return instance;
     }
+    
+    public boolean isFinished(int tick, int frequency) {
+        return tick > maxTimeInDataBase + frequency;
+    }
 
     /**
      * Processes the DetectObjectsEvent and returns a list of TrackedObject instances.
@@ -41,7 +51,7 @@ public class LiDarDataBase {
      * @param detectObjectsEvent The event containing detected objects data.
      * @return A list of TrackedObject instances.
      */
-    public List<TrackedObject> getTrackedObjects(DetectObjectsEvent detectObjectsEvent) {
+    public synchronized List<TrackedObject> getTrackedObjects(DetectObjectsEvent detectObjectsEvent) {
         List<TrackedObject> trackedObjects = new ArrayList<>();
         // for each detected object, find the corresponding cloud points and create a TrackedObject instance
         for (DetectedObject detectedObject : detectObjectsEvent.getDetectedObjects()) {
