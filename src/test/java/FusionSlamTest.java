@@ -37,7 +37,7 @@ public class FusionSlamTest {
 
     @Test
     public void testUpdateTrackedObjects() {
-        Pose pose = new Pose(5.0f, 10.0f, 30,0);
+        Pose pose = new Pose(5.0f, 10.0f, 30,1);
         fusionSlam.updatePose(pose);
 
         ArrayList<CloudPoint> coordinates = new ArrayList<>();
