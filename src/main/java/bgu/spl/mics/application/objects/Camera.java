@@ -27,6 +27,12 @@ public class Camera {
         }
     }
 
+    public Camera(int i, int j, String string) {
+        this.id = string;
+        this.frequency = j;
+        this.detectedObjectsList = new ArrayList<>();
+    }
+
     public String getId() {
         return id;
     }
@@ -78,5 +84,9 @@ public class Camera {
                 ", status=" + status +
                 ", detectedObjectsList=" + detectedObjectsList.toString() +
                 '}';
+    }
+
+    public STATUS getStatus() {
+        return status;
     }
 }

@@ -29,7 +29,13 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <!-- Maven Compiler Plugin -->
