@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.objects.FusionSlam;
@@ -46,7 +47,9 @@ public class FusionSlamService extends MicroService {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast tick) -> {
             statisticalFolder.setSystemRuntime(tick.getTick());
             fusionSlam.performPeriodicUpdate(tick.getTick());
-            if (fusionSlam.isTimeToTerminate()){
+            if (isTimeToTerminate()){
+                writeOutputFile();
+                fusionSlam.terminate();
                 terminate();
             }
         });
@@ -69,6 +72,7 @@ public class FusionSlamService extends MicroService {
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast terminated) -> {
             if (terminated.getSenderClass() == TimeService.class) {
                 writeOutputFile();
+                fusionSlam.terminate();
                 terminate();
             }
         });
@@ -77,6 +81,7 @@ public class FusionSlamService extends MicroService {
         subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast crashed) -> {
             fusionSlam.handleCrash(crashed.getCrashDetails());
             writeErrorOutputFile(crashed.getCrashDetails(), crashed.getFaultySensor(), crashed.getLastFrames(), crashed.getPoses());
+            fusionSlam.terminate();
             terminate();
         });
     }
@@ -101,6 +106,7 @@ public class FusionSlamService extends MicroService {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter("output_file.json")) {
             gson.toJson(output, writer);
+            System.err.println("wrote output file");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -129,5 +135,9 @@ public class FusionSlamService extends MicroService {
         statistics.put("numTrackedObjects", statisticalFolder.getNumTrackedObjects());
         statistics.put("numLandmarks", statisticalFolder.getNumLandmarks());
         return statistics;
+    }
+
+        public boolean isTimeToTerminate() {
+        return fusionSlam.getNumOfActiveSensor() == 0 && MessageBusImpl.getInstance().noMessagesForService(this);
     }
 }

@@ -22,6 +22,7 @@ public class LiDarDataBase {
                 maxTimeInDataBase = stampedCloudPoints.getTime();
             }
         }
+        System.err.println("LiDarDataBase max time is " + maxTimeInDataBase);
     }
 
     /**

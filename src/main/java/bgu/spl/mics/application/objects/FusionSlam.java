@@ -3,10 +3,8 @@ package bgu.spl.mics.application.objects;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,11 +20,20 @@ public class FusionSlam {
     private final Vector<Pose> poses;
     private final ConcurrentLinkedQueue<TrackedObject> objectsToProcess;
     private final AtomicInteger numOfActiveSensor = new AtomicInteger(0);
+    private boolean isTerminated = false;
 
     private FusionSlam() {
         landmarks = new Vector<>();
         poses = new Vector<>();
         objectsToProcess = new ConcurrentLinkedQueue<>();
+    }
+
+    public void terminate() {
+        isTerminated = true;
+    }
+
+    public boolean isTerminated() {
+        return isTerminated;
     }
 
     private static class FusionSlamHolder {
@@ -187,10 +194,5 @@ public class FusionSlam {
             }
         }
         return false;
-    }
-
-    public boolean isTimeToTerminate() {
-        System.out.println("num of active sensors: " + numOfActiveSensor.get() + " objects to process: " + objectsToProcess.size());
-        return numOfActiveSensor.get() == 0 && objectsToProcess.isEmpty();
     }
 }

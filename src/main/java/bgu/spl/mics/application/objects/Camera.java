@@ -25,6 +25,7 @@ public class Camera {
                 maxDetectedTime = stampedDetectedObject.getTime();
             }
         }
+        System.err.println("Camera " + id + " max time is " + maxDetectedTime);
     }
 
     public Camera(int i, int j, String string) {
