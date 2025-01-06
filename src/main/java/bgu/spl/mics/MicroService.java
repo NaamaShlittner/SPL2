@@ -1,5 +1,8 @@
 package bgu.spl.mics;
 import java.util.concurrent.ConcurrentHashMap;
+
+import bgu.spl.mics.application.objects.FusionSlam;
+
 import java.util.Map;
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -141,6 +144,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
+        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         this.terminated = true;
     }
 

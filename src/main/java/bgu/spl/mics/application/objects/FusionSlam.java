@@ -161,4 +161,9 @@ public class FusionSlam {
         }
         return false;
     }
+
+    public boolean isTimeToTerminate() {
+        System.out.println("num of active sensors: " + numOfActiveSensor.get() + " objects to process: " + objectsToProcess.size());
+        return numOfActiveSensor.get() == 0;
+    }
 }
