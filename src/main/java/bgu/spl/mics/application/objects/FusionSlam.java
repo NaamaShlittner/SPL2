@@ -49,7 +49,6 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
-    // Updates the global map with tracked objects
     public synchronized void updateTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
             objectsToProcess.add(trackedObject);
@@ -57,7 +56,6 @@ public class FusionSlam {
         processObjectPoses();
     }
 
-    // Updates the robot's pose
     public synchronized void updatePose(Pose pose) {
         if (pose == null) {
             throw new IllegalArgumentException("Pose cannot be null");
@@ -68,95 +66,77 @@ public class FusionSlam {
 
     private final List<TrackedObject> waitingObjects = new ArrayList<>();
 
-public synchronized void processObjectPoses() {
-    Iterator<TrackedObject> trackedObjectIterator = objectsToProcess.iterator();
-    while (trackedObjectIterator.hasNext()) {
-        TrackedObject objectToProcess = trackedObjectIterator.next();
-        Pose pose = poses.stream()
-                .filter(p -> p.getTime() == objectToProcess.getTime())
-                .findFirst()
-                .orElse(null);
+    public synchronized void processObjectPoses() {
+        Iterator<TrackedObject> trackedObjectIterator = objectsToProcess.iterator();
+        while (trackedObjectIterator.hasNext()) {
+            TrackedObject objectToProcess = trackedObjectIterator.next();
+            Pose pose = poses.stream()
+                    .filter(p -> p.getTime() == objectToProcess.getTime())
+                    .findFirst()
+                    .orElse(null);
 
-        if (pose == null) {
-            System.out.println("Pose for time " + objectToProcess.getTime() + " not found. Moving to waiting list.");
-            waitingObjects.add(objectToProcess); // Add to waiting list
-            trackedObjectIterator.remove(); // Remove from objectsToProcess
-            continue;
-        }
-
-        // Process object with the matching pose
-        List<CloudPoint> globalCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(), pose);
-        Optional<LandMark> existingLandmark = landmarks.stream()
-                .filter(l -> l.getId().equals(objectToProcess.getId()))
-                .findFirst();
-
-        if (existingLandmark.isPresent()) {
-            LandMark landmark = existingLandmark.get();
-            List<CloudPoint> existingCoordinates = landmark.getCoordinates();
-            List<CloudPoint> updatedCoordinates = new ArrayList<>();
-
-            int k = Math.min(existingCoordinates.size(), globalCoordinates.size());
-            for (int i = 0; i < k; i++) {
-                CloudPoint li = existingCoordinates.get(i);
-                CloudPoint ci = globalCoordinates.get(i);
-                updatedCoordinates.add(new CloudPoint(
-                        (li.getX() + ci.getX()) / 2,
-                        (li.getY() + ci.getY()) / 2
-                ));
+            if (pose == null) {
+                waitingObjects.add(objectToProcess);
+                trackedObjectIterator.remove();
+                continue;
             }
-
-            if (globalCoordinates.size() > k) {
-                updatedCoordinates.addAll(globalCoordinates.subList(k, globalCoordinates.size()));
+            List<CloudPoint> globalCoordinates = transformToGlobalCoordinates(objectToProcess.getCoordinates(), pose);
+            Optional<LandMark> existingLandmark = landmarks.stream()
+                    .filter(l -> l.getId().equals(objectToProcess.getId()))
+                    .findFirst();
+            if (existingLandmark.isPresent()) {
+                LandMark landmark = existingLandmark.get();
+                List<CloudPoint> existingCoordinates = landmark.getCoordinates();
+                List<CloudPoint> updatedCoordinates = new ArrayList<>();
+                int k = Math.min(existingCoordinates.size(), globalCoordinates.size());
+                for (int i = 0; i < k; i++) {
+                    CloudPoint li = existingCoordinates.get(i);
+                    CloudPoint ci = globalCoordinates.get(i);
+                    updatedCoordinates.add(new CloudPoint(
+                            (li.getX() + ci.getX()) / 2,
+                            (li.getY() + ci.getY()) / 2
+                    ));
+                }
+                if (globalCoordinates.size() > k) {
+                    updatedCoordinates.addAll(globalCoordinates.subList(k, globalCoordinates.size()));
+                }
+                landmarks.set(landmarks.indexOf(landmark),
+                        new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), updatedCoordinates));
+            } else {
+                landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), globalCoordinates));
+                StatisticalFolder.getInstance().incrementNumLandmarks();
             }
-
-            landmarks.set(landmarks.indexOf(landmark),
-                    new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), updatedCoordinates));
-        } else {
-            landmarks.add(new LandMark(objectToProcess.getId(), objectToProcess.getDescription(), globalCoordinates));
-            StatisticalFolder.getInstance().incrementNumLandmarks();
+            poses.removeIf(p -> p.getTime() == pose.getTime());
+            trackedObjectIterator.remove();
         }
-
-        poses.removeIf(p -> p.getTime() == pose.getTime());
-        trackedObjectIterator.remove(); // Successfully processed
+        reprocessWaitingObjects();
     }
 
-    // Reprocess waiting objects if new poses are added
-    reprocessWaitingObjects();
-}
+    private void reprocessWaitingObjects() {
+        Iterator<TrackedObject> iterator = waitingObjects.iterator();
+        while (iterator.hasNext()) {
+            TrackedObject object = iterator.next();
+            Pose pose = poses.stream()
+                    .filter(p -> p.getTime() == object.getTime())
+                    .findFirst()
+                    .orElse(null);
 
-private void reprocessWaitingObjects() {
-    Iterator<TrackedObject> iterator = waitingObjects.iterator();
-    while (iterator.hasNext()) {
-        TrackedObject object = iterator.next();
-        Pose pose = poses.stream()
-                .filter(p -> p.getTime() == object.getTime())
-                .findFirst()
-                .orElse(null);
-
-        if (pose != null) {
-            System.out.println("Reprocessing object with time " + object.getTime());
-            objectsToProcess.add(object);
-            iterator.remove();
+            if (pose != null) {
+                objectsToProcess.add(object);
+                iterator.remove();
+            }
         }
     }
-}
+
     public synchronized List<CloudPoint> transformToGlobalCoordinates(List<CloudPoint> relativeCoordinates, Pose pose) {
         double yawRadians = pose.getYaw() * Math.PI / 180;
-        System.out.println("Yaw: " + yawRadians);
         double cosTheta = Math.cos(yawRadians);
         double sinTheta = Math.sin(yawRadians);
         List<CloudPoint> globalCloudPoints = new ArrayList<>();
-int i =0;
         for (CloudPoint relativeCloudPoint : relativeCoordinates) {
-            System.out.println(i+"Relative cloud point: " + relativeCloudPoint);
-            System.out.println(i+"Pose: " + pose.toString());
             double xGlobal = (cosTheta * relativeCloudPoint.getX() - sinTheta * relativeCloudPoint.getY() + pose.getX());
-            System.out.println(i+"XGlobal: " + xGlobal);
             double yGlobal =  (sinTheta * relativeCloudPoint.getX() + cosTheta * relativeCloudPoint.getY() + pose.getY());
-            System.out.println(i+"YGlobal: " + yGlobal);
             globalCloudPoints.add(new CloudPoint((float)xGlobal, (float)yGlobal));
-            System.out.println(i+"Global cloud point: " + globalCloudPoints.get(globalCloudPoints.size() - 1));
-            i++;
         }
         return globalCloudPoints;
     }
