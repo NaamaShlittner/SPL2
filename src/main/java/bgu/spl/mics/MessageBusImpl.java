@@ -1,6 +1,8 @@
 package bgu.spl.mics;
 
 import java.util.concurrent.*;
+
+import bgu.spl.mics.application.services.FusionSlamService;
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
@@ -129,5 +131,10 @@ public class MessageBusImpl implements MessageBus {
 		}
 		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
 		return !queue.isEmpty();
+	}
+
+	public boolean noMessagesForService(MicroService m) {
+		ConcurrentLinkedQueue<Message> queue = messageQueues.get(m);
+		return queue.isEmpty();
 	}
 }

@@ -57,6 +57,6 @@ public class TimeService extends MicroService {
 
         // used to check if the queue is empty in the TimeService
     public boolean isTimeToTerminateTime(){
-        return FusionSlam.getInstance().isTimeToTerminate();
+        return FusionSlam.getInstance().isTerminated();
     }
 }

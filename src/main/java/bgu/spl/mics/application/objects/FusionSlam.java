@@ -11,6 +11,8 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import bgu.spl.mics.MessageBusImpl;
+
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping
  * (SLAM). Combines data from multiple sensors (e.g., LiDAR, camera) to build
@@ -22,11 +24,20 @@ public class FusionSlam {
     private final Vector<Pose> poses;
     private final ConcurrentLinkedQueue<TrackedObject> objectsToProcess;
     private final AtomicInteger numOfActiveSensor = new AtomicInteger(0);
+    private boolean isTerminated = false;
 
     private FusionSlam() {
         landmarks = new Vector<>();
         poses = new Vector<>();
         objectsToProcess = new ConcurrentLinkedQueue<>();
+    }
+
+    public void terminate() {
+        isTerminated = true;
+    }
+
+    public boolean isTerminated() {
+        return isTerminated;
     }
 
     private static class FusionSlamHolder {
@@ -187,10 +198,5 @@ public class FusionSlam {
             }
         }
         return false;
-    }
-
-    public boolean isTimeToTerminate() {
-        System.out.println("num of active sensors: " + numOfActiveSensor.get() + " objects to process: " + objectsToProcess.size());
-        return numOfActiveSensor.get() == 0 && objectsToProcess.isEmpty();
     }
 }
