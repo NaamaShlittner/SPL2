@@ -72,7 +72,7 @@ public class LiDarService extends MicroService {
                         liDarWorkerTracker.crash();
                         sendBroadcast(new CrashedBroadcast(trackedObject.getDescription(), this.getName()));
                         terminate();
-                        break;
+                        return;
                     }
                 }
                 if (tick.getTick() >= trackedObjectsEvent.getReceivedTick() + liDarWorkerTracker.getFrequency()) {
