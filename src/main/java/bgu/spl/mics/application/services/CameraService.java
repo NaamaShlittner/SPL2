@@ -9,7 +9,6 @@ import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.FusionSlam;
 
-import java.sql.Time;
 import java.util.List;
 
 /**
@@ -22,6 +21,7 @@ import java.util.List;
 public class CameraService extends MicroService {
 
     private final Camera camera;
+    final String GREEN = "\033[32m";
     final String PURPLE = "\033[35m";
     final String RESET = "\033[0m";
 
@@ -47,7 +47,8 @@ public class CameraService extends MicroService {
                 // here we know for a fact that the camera should send data and the list is not empty
                 List<DetectedObject> detectedObjects = camera.detectObjects(tick.getTick() - camera.getFrequency());
                 for (DetectedObject detectedObject : detectedObjects) {
-                    if (detectedObject.getId() == "ERROR") {
+                    System.err.println(GREEN + "Camera " + camera.getId() + " detected " + detectedObject.getId() + RESET);
+                    if (detectedObject.getId().equals("ERROR")) {
                         camera.crash();
                         sendBroadcast(new CrashedBroadcast(detectedObject.getDescription(), this.getName()));
                         terminate();

@@ -3,15 +3,11 @@ package bgu.spl.mics.application.objects;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import bgu.spl.mics.MessageBusImpl;
 
 /**
  * Manages the fusion of sensor data for simultaneous localization and mapping
