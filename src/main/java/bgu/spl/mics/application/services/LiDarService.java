@@ -79,6 +79,7 @@ public class LiDarService extends MicroService {
                     iterator.remove();
                     // System.out.println(PURPLE + "LiDarService: Sending TrackedObjectsEvent " + trackedObjectsEvent.getTrackedObjects() + RESET);
                     sendEvent(trackedObjectsEvent);
+                    FusionSlam.getInstance().updateDataPassedBySensors("LidarWorker-" + liDarWorkerTracker.getId(), trackedObjectsEvent.getTrackedObjects());
                     if (LiDarDataBase.getInstance().isFinished(tick.getTick(), liDarWorkerTracker.getFrequency())) {
                         liDarWorkerTracker.terminate();
                         terminate();
