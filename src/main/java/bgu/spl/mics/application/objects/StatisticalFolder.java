@@ -35,6 +35,7 @@ public class StatisticalFolder {
 
     public void setSystemRuntime(int systemRuntime) {
         this.systemRuntime.compareAndSet(this.systemRuntime.get(), systemRuntime);
+        System.err.println("System runtime: " + systemRuntime);
     }
 
     public int getNumDetectedObjects() {

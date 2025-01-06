@@ -144,7 +144,6 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
-        FusionSlam.getInstance().DecrementNumOfActiveSensor();
         this.terminated = true;
     }
 
