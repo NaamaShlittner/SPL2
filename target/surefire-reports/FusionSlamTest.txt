@@ -1,8 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: FusionSlamTest
 -------------------------------------------------------------------------------
-<<<<<<< HEAD
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.080 s -- in FusionSlamTest
-=======
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s -- in FusionSlamTest
->>>>>>> 1e9f9739bde45659465c6b10b0f6eb639bd73693
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in FusionSlamTest
