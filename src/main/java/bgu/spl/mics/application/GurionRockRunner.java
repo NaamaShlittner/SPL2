@@ -3,7 +3,6 @@ package bgu.spl.mics.application;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.gson_files.Config;
 import bgu.spl.mics.application.objects.Camera;
@@ -11,7 +10,11 @@ import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.objects.StatisticalFolder;
-import bgu.spl.mics.application.services.*;
+import bgu.spl.mics.application.services.CameraService;
+import bgu.spl.mics.application.services.FusionSlamService;
+import bgu.spl.mics.application.services.LiDarService;
+import bgu.spl.mics.application.services.PoseService;
+import bgu.spl.mics.application.services.TimeService;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -32,9 +35,15 @@ public class GurionRockRunner {
     public static void main(String[] args) throws InterruptedException {
         System.out.println("System is starting...");
 
-        // Config c = Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example input\\configuration_file.json");
-        Config c = Config.parseInputConfig("C:\\Users\\Nadav\\OneDrive\\שולחן העבודה\\לימודים\\SPL_2\\SPL2\\example_input_2\\configuration_file.json");
-        
+        // Check if the user provided the path as an argument
+        if (args.length < 1) {
+            System.out.println("Error: No configuration file path provided.");
+            System.exit(1); // Exit the program with an error code
+        }
+
+        // Use the path from the command-line argument
+        String configFilePath = args[0];
+        Config c = Config.parseInputConfig(configFilePath);
         List<Camera> cameras = c.getCameras();
         List<LiDarWorkerTracker> liDarWorkerTrackers = c.getLiDarWorkers();
         int duration = c.getDuration();
