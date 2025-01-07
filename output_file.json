@@ -4353,8 +4353,8 @@
   ],
   "faultySensor": "CameraService-1",
   "statistics": {
-    "numTrackedObjects": 19,
-    "numLandmarks": 4,
+    "numTrackedObjects": 20,
+    "numLandmarks": 3,
     "systemRuntime": 9,
     "numDetectedObjects": 31
   }
