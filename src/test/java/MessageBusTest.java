@@ -51,4 +51,18 @@ public class MessageBusTest {
         assertTrue(future.isDone());
         assertNull(future.get());
     }
+    
+    @Test
+    public void testSimpleBroadcast() {
+        TickBroadcast broadcast = new TickBroadcast(1);
+        messageBus.sendBroadcast(broadcast);
+        try {
+            Message message = messageBus.awaitMessage(microService);
+            assertNotNull(message, "MicroService should receive the broadcast");
+            assertTrue(message instanceof TickBroadcast, "Message should be a TickBroadcast");
+            assertEquals(broadcast, message, "The received broadcast should match the sent broadcast");
+        } catch (InterruptedException e) {
+            fail("awaitMessage was interrupted");
+        }
+    }
 }
