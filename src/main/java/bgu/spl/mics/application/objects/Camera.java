@@ -64,6 +64,15 @@ public class Camera {
         }
     }
 
+    public StampedDetectedObjects getStampedDetectedObjects(int tick) {
+        for (StampedDetectedObjects stampedDetectedObject : detectedObjectsList) {
+            if (stampedDetectedObject.getTime() == tick) {
+                return stampedDetectedObject;
+            }
+        }
+        return null;
+    }
+
     public int getFrequency() {
         return frequency;
     }

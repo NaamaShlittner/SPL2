@@ -52,10 +52,12 @@ public class CameraService extends MicroService {
                         camera.crash();
                         sendBroadcast(new CrashedBroadcast(detectedObject.getDescription(), this.getName()));
                         terminate();
+                        return;
                     }
                 }
                 System.out.println(PURPLE + "Camera " + camera.getId() + " detected " + detectedObjects.size() + " objects at tick " + tick.getTick() + RESET);
                 sendEvent(new DetectObjectsEvent(camera.getId(), detectedObjects,tick.getTick()));
+                FusionSlam.getInstance().updateDataPassedBySensors("Camera-" + camera.getId(), camera.getStampedDetectedObjects(tick.getTick() - camera.getFrequency())); // sending last frame data to FusionSlam
             }
             if (camera.isFinished(tick.getTick())) {
                 camera.terminate();

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +22,8 @@ public class FusionSlam {
     private final ConcurrentLinkedQueue<TrackedObject> objectsToProcess;
     private final AtomicInteger numOfActiveSensor = new AtomicInteger(0);
     private boolean isTerminated = false;
+    private Vector<Pose> allPosesProcessed = new Vector<>();
+    private ConcurrentHashMap <String, Object> dataPassedBySensors = new ConcurrentHashMap<>();
 
     private FusionSlam() {
         landmarks = new Vector<>();
@@ -34,6 +37,14 @@ public class FusionSlam {
 
     public boolean isTerminated() {
         return isTerminated;
+    }
+
+    public ConcurrentHashMap<String, Object> getDataPassedBySensors() {
+        return dataPassedBySensors;
+    }
+
+    public Vector<Pose> getAllPosesProcessed() {
+        return allPosesProcessed;
     }
 
     private static class FusionSlamHolder {
@@ -56,6 +67,10 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
+    public synchronized void updateDataPassedBySensors(String key, Object data){
+        dataPassedBySensors.put(key, data);
+    }
+
     public synchronized void updateTrackedObjects(List<TrackedObject> trackedObjects) {
         for (TrackedObject trackedObject : trackedObjects) {
             objectsToProcess.add(trackedObject);
@@ -67,6 +82,7 @@ public class FusionSlam {
         if (pose == null) {
             throw new IllegalArgumentException("Pose cannot be null");
         }
+        allPosesProcessed.add(pose);
         poses.add(pose);
         processObjectPoses();
     }
@@ -195,4 +211,8 @@ public class FusionSlam {
         }
         return false;
     }
+
+    public void printForDebug(){
+        System.err.println("all poses processed= " +allPosesProcessed.toString() + ". last frames= " + dataPassedBySensors.toString());
+}
 }
