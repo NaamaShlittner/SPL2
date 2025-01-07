@@ -23,6 +23,7 @@ import java.util.List;
 public class FusionSlamService extends MicroService {
     private final FusionSlam fusionSlam;
     private final StatisticalFolder statisticalFolder;
+    private final String OutputPath;
 
     /**
      * Constructor for FusionSlamService.
@@ -30,10 +31,11 @@ public class FusionSlamService extends MicroService {
      * @param fusionSlam The FusionSLAM object responsible for managing the global map.
      * @param statisticalFolder The StatisticalFolder object responsible for aggregating key metrics.
      */
-    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder) {
+    public FusionSlamService(FusionSlam fusionSlam, StatisticalFolder statisticalFolder, String OutputPath) {
         super("FusionSlamService");
         this.fusionSlam = fusionSlam;
         this.statisticalFolder = statisticalFolder;
+        this.OutputPath = OutputPath;
     }
 
     /**
@@ -104,7 +106,7 @@ public class FusionSlamService extends MicroService {
         output.put("landMarks", landmarksMap);
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter("output_file.json")) {
+        try (FileWriter writer = new FileWriter(OutputPath + "/output_file.json")) {
             gson.toJson(output, writer);
             System.err.println("wrote output file");
         } catch (IOException e) {
@@ -121,7 +123,7 @@ public class FusionSlamService extends MicroService {
         output.put("statistics", getStatistics());
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter("output_file.json")) {
+        try (FileWriter writer = new FileWriter(OutputPath +"/OutputError.json")) {
             gson.toJson(output, writer);
         } catch (IOException e) {
             e.printStackTrace();

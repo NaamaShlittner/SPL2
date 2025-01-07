@@ -1,5 +1,6 @@
 package bgu.spl.mics.application;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class GurionRockRunner {
         for (LiDarWorkerTracker liDarWorkerTracker : liDarWorkerTrackers) {
             services.add(new LiDarService(liDarWorkerTracker));
         }
-        services.add(new FusionSlamService(FusionSlam.getInstance(), StatisticalFolder.getInstance()));
+        services.add(new FusionSlamService(FusionSlam.getInstance(), StatisticalFolder.getInstance(), Paths.get(configFilePath).getParent().toString()));
         services.add(new PoseService(gpsimu));
         MicroService timeService = new TimeService(tickTime, duration);
 
